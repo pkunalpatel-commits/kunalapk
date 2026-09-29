@@ -14,10 +14,13 @@ import java.util.Locale
 
 enum class SpikeSort {
     TIME_DESC, TIME_ASC,
-    OI_DESC, OI_ASC,
+    EXPIRY_DESC, EXPIRY_ASC,
+    STRIKE_DESC, STRIKE_ASC,
+    TYPE_ASC, TYPE_DESC,
+    WIN_ASC, WIN_DESC,
+    OI_SIZE_DESC, OI_SIZE_ASC,
+    OI_PCT_DESC, OI_PCT_ASC,
     LTP_DESC, LTP_ASC,
-    STRIKE_ASC, STRIKE_DESC,
-    EXPIRY_ASC, EXPIRY_DESC,
 }
 
 class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
@@ -41,24 +44,37 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
 
     fun currentSort(): SpikeSort = sort
 
-    /** Shorten "2026-10-19" → "10-19" for narrow columns */
     private fun shortExpiry(exp: String): String {
         val parts = exp.split("-")
         return if (parts.size >= 3) "${parts[1]}-${parts[2]}" else exp
+    }
+
+    private fun formatOi(oi: Double): String {
+        return when {
+            oi >= 1_000_000 -> String.format(Locale.US, "%.1fM", oi / 1_000_000)
+            oi >= 1_000 -> String.format(Locale.US, "%.0fK", oi / 1_000)
+            else -> oi.toLong().toString()
+        }
     }
 
     private fun applySort() {
         val sorted = when (sort) {
             SpikeSort.TIME_DESC -> raw.sortedByDescending { it.ts }
             SpikeSort.TIME_ASC -> raw.sortedBy { it.ts }
-            SpikeSort.OI_DESC -> raw.sortedByDescending { it.oiChangePct }
-            SpikeSort.OI_ASC -> raw.sortedBy { it.oiChangePct }
+            SpikeSort.EXPIRY_DESC -> raw.sortedByDescending { it.expiry }
+            SpikeSort.EXPIRY_ASC -> raw.sortedBy { it.expiry }
+            SpikeSort.STRIKE_DESC -> raw.sortedByDescending { it.strike }
+            SpikeSort.STRIKE_ASC -> raw.sortedBy { it.strike }
+            SpikeSort.TYPE_ASC -> raw.sortedBy { it.type }
+            SpikeSort.TYPE_DESC -> raw.sortedByDescending { it.type }
+            SpikeSort.WIN_ASC -> raw.sortedBy { it.window }
+            SpikeSort.WIN_DESC -> raw.sortedByDescending { it.window }
+            SpikeSort.OI_SIZE_DESC -> raw.sortedByDescending { it.oi }
+            SpikeSort.OI_SIZE_ASC -> raw.sortedBy { it.oi }
+            SpikeSort.OI_PCT_DESC -> raw.sortedByDescending { it.oiChangePct }
+            SpikeSort.OI_PCT_ASC -> raw.sortedBy { it.oiChangePct }
             SpikeSort.LTP_DESC -> raw.sortedByDescending { it.ltp }
             SpikeSort.LTP_ASC -> raw.sortedBy { it.ltp }
-            SpikeSort.STRIKE_ASC -> raw.sortedBy { it.strike }
-            SpikeSort.STRIKE_DESC -> raw.sortedByDescending { it.strike }
-            SpikeSort.EXPIRY_ASC -> raw.sortedBy { it.expiry }
-            SpikeSort.EXPIRY_DESC -> raw.sortedByDescending { it.expiry }
         }
         items.clear()
         items.addAll(sorted)
@@ -81,6 +97,7 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
         holder.colStrike.text = a.strike.toInt().toString()
         holder.colType.text = a.type
         holder.colWin.text = a.window
+        holder.colOi.text = formatOi(a.oi)
         holder.colOiPct.text = String.format(Locale.US, "%+.1f%%", a.oiChangePct)
         holder.colLtp.text = String.format(Locale.US, "%.1f", a.ltp)
         val green = Color.parseColor("#86EFAC")
@@ -88,9 +105,9 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
         val c = if (a.oiChangePct >= 0) green else red
         holder.colOiPct.setTextColor(c)
         holder.colTime.setTextColor(c)
-        holder.itemView.setBackgroundColor(
-            if (position % 2 == 0) Color.parseColor("#1A2332") else Color.parseColor("#141C28")
-        )
+        val bg = if (position % 2 == 0) Color.parseColor("#1A2332") else Color.parseColor("#141C28")
+        holder.itemView.setBackgroundColor(bg)
+        (holder.colTime.parent as? View)?.setBackgroundColor(bg)
     }
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
@@ -99,6 +116,7 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
         val colStrike: TextView = v.findViewById(R.id.colStrike)
         val colType: TextView = v.findViewById(R.id.colType)
         val colWin: TextView = v.findViewById(R.id.colWin)
+        val colOi: TextView = v.findViewById(R.id.colOi)
         val colOiPct: TextView = v.findViewById(R.id.colOiPct)
         val colLtp: TextView = v.findViewById(R.id.colLtp)
     }
