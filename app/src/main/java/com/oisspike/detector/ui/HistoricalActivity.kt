@@ -41,6 +41,18 @@ class HistoricalActivity : AppCompatActivity() {
     private lateinit var adapter: SpikeAdapter
     private var job: Job? = null
     private val expiryChecks = linkedMapOf<String, CheckBox>()
+    private var filtersPanelView: View? = null
+    private var filtersToggleBtn: Button? = null
+
+    private fun hideOptionsForResults() {
+        filtersPanelView?.visibility = View.GONE
+        filtersToggleBtn?.text = "Show options"
+    }
+
+    private fun showOptions() {
+        filtersPanelView?.visibility = View.VISIBLE
+        filtersToggleBtn?.text = "Hide options"
+    }
 
     private fun toAlert(h: HistoricalSpike) = SpikeAlert(
         h.symbol, h.expiry, h.strike, h.type, h.window,
