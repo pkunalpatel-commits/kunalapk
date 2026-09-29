@@ -177,6 +177,8 @@ class ScanService : Service() {
                 val oi = leg.optDouble("oi", 0.0)
                 val ltp = leg.optDouble("last_price", 0.0)
                 if (oi <= 0) continue
+                // Only scan contracts at/above min LTP
+                if (settings.minLtp > 0f && ltp < settings.minLtp) continue
                 val alerts = engine.ingest(symbol, expiry, strike, side.second, oi, ltp, ts)
                 for (a in alerts) {
                     onSpike(a)

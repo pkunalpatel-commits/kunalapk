@@ -67,6 +67,11 @@ class AppSettings(context: Context) {
         get() = prefs.getFloat("min_oi", 90000f)
         set(v) = prefs.edit().putFloat("min_oi", v).apply()
 
+    /** Skip option contracts with LTP below this (0 = no filter). */
+    var minLtp: Float
+        get() = prefs.getFloat("min_ltp", 5f)
+        set(v) = prefs.edit().putFloat("min_ltp", v).apply()
+
     var alertCooldownMin: Int
         get() = prefs.getInt("alert_cooldown_min", 10)
         set(v) = prefs.edit().putInt("alert_cooldown_min", v).apply()

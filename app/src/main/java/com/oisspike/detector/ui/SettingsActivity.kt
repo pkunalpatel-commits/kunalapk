@@ -36,6 +36,7 @@ class SettingsActivity : AppCompatActivity() {
         val oi10 = findViewById<EditText>(R.id.inputOi10)
         val price = findViewById<EditText>(R.id.inputPrice)
         val minOi = findViewById<EditText>(R.id.inputMinOi)
+        val minLtp = findViewById<EditText>(R.id.inputMinLtp)
         val cooldown = findViewById<EditText>(R.id.inputCooldown)
         val atm = findViewById<EditText>(R.id.inputAtm)
         val chkTelegram = findViewById<CheckBox>(R.id.chkTelegram)
@@ -56,6 +57,7 @@ class SettingsActivity : AppCompatActivity() {
         oi10.setText(settings.oiSpike10mPct.toString())
         price.setText(settings.priceChangePct.toString())
         minOi.setText(settings.minOi.toLong().toString())
+        minLtp.setText(settings.minLtp.toString())
         cooldown.setText(settings.alertCooldownMin.toString())
         atm.setText(settings.atmRangeStrikes.toString())
         chkTelegram.isChecked = settings.enableTelegram
@@ -78,6 +80,7 @@ class SettingsActivity : AppCompatActivity() {
             settings.oiSpike10mPct = oi10.text.toString().toFloatOrNull() ?: 25f
             settings.priceChangePct = price.text.toString().toFloatOrNull() ?: 1f
             settings.minOi = minOi.text.toString().toFloatOrNull() ?: 90000f
+            settings.minLtp = minLtp.text.toString().toFloatOrNull() ?: 0f
             settings.alertCooldownMin = cooldown.text.toString().toIntOrNull() ?: 10
             settings.atmRangeStrikes = atm.text.toString().toIntOrNull() ?: 5
             settings.enableTelegram = chkTelegram.isChecked

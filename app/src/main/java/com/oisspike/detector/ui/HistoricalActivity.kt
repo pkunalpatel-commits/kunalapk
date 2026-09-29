@@ -190,7 +190,7 @@ class HistoricalActivity : AppCompatActivity() {
                             withContext(Dispatchers.Main) { appendLog("ERROR chain: ${e.message}") }
                             continue
                         }
-                        val contracts = pickContracts(chain, atmN, wantCe, wantPe)
+                        val contracts = pickContracts(chain, atmN, wantCe, wantPe, settings.minLtp.toDouble())
                         withContext(Dispatchers.Main) {
                             appendLog("  ${contracts.size} contracts near ATM")
                         }
@@ -255,6 +255,7 @@ class HistoricalActivity : AppCompatActivity() {
         atmN: Int,
         wantCe: Boolean,
         wantPe: Boolean,
+        minLtp: Double,
     ): List<Contract> {
         val oc = chain.optJSONObject("oc") ?: return emptyList()
         val lastPrice = chain.optDouble("last_price", Double.NaN)
@@ -276,14 +277,16 @@ class HistoricalActivity : AppCompatActivity() {
             if (wantCe) {
                 val ce = legs.optJSONObject("ce")
                 val sid = ce?.opt("security_id")?.toString()
-                if (!sid.isNullOrBlank() && sid != "null") {
+                val ltp = ce?.optDouble("last_price", 0.0) ?: 0.0
+                if (!sid.isNullOrBlank() && sid != "null" && (minLtp <= 0 || ltp >= minLtp)) {
                     out.add(Contract(sid, strike, "CE"))
                 }
             }
             if (wantPe) {
                 val pe = legs.optJSONObject("pe")
                 val sid = pe?.opt("security_id")?.toString()
-                if (!sid.isNullOrBlank() && sid != "null") {
+                val ltp = pe?.optDouble("last_price", 0.0) ?: 0.0
+                if (!sid.isNullOrBlank() && sid != "null" && (minLtp <= 0 || ltp >= minLtp)) {
                     out.add(Contract(sid, strike, "PE"))
                 }
             }
