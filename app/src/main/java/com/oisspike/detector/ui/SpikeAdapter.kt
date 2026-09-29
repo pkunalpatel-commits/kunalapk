@@ -40,16 +40,12 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
 
     fun currentSort(): SpikeSort = sort
 
-    private fun shortExpiry(exp: String): String {
-        val p = exp.split("-")
-        return if (p.size >= 3) "${p[1]}-${p[2]}" else exp
-    }
+    /** Full expiry e.g. 2026-10-19 (no short form). */
+    private fun fullExpiry(exp: String): String = exp.trim()
 
-    private fun formatOi(oi: Double): String = when {
-        oi >= 1_000_000 -> String.format(Locale.US, "%.1fM", oi / 1_000_000)
-        oi >= 1_000 -> String.format(Locale.US, "%.0fK", oi / 1_000)
-        else -> oi.toLong().toString()
-    }
+    /** Full OI integer with thousand separators, e.g. 694,460 */
+    private fun fullOi(oi: Double): String =
+        String.format(Locale.US, "%,d", oi.toLong())
 
     private fun applySort() {
         val sorted = when (sort) {
@@ -86,11 +82,11 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
         val a = items[position]
         holder.colTime.text = if (showDate) fmtDate.format(Date(a.ts * 1000))
         else fmtTime.format(Date(a.ts * 1000))
-        holder.colExpiry.text = shortExpiry(a.expiry)
+        holder.colExpiry.text = fullExpiry(a.expiry)
         holder.colStrike.text = a.strike.toInt().toString()
         holder.colType.text = a.type
         holder.colWin.text = a.window
-        holder.colOi.text = formatOi(a.oi)
+        holder.colOi.text = fullOi(a.oi)
         holder.colOiPct.text = String.format(Locale.US, "%+.0f%%", a.oiChangePct)
         holder.colLtp.text = String.format(Locale.US, "%.0f", a.ltp)
         val c = if (a.oiChangePct >= 0) Color.parseColor("#86EFAC") else Color.parseColor("#FCA5A5")

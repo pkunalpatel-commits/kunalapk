@@ -12,7 +12,7 @@
     <TextView android:id="@+id/hdrTime" android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_weight="1.15" android:text="Time" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" />
     <TextView android:id="@+id/hdrExpiry" android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="0.85" android:text="Exp" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" />
+        android:layout_weight="1.15" android:text="Exp" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" />
     <TextView android:id="@+id/hdrStrike" android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_weight="0.8" android:text="Strike" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" />
     <TextView android:id="@+id/hdrType" android:layout_width="0dp" android:layout_height="wrap_content"
@@ -20,7 +20,7 @@
     <TextView android:id="@+id/hdrWin" android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_weight="0.4" android:text="Win" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" android:gravity="center" />
     <TextView android:id="@+id/hdrOi" android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="0.75" android:text="OI" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" android:gravity="end" />
+        android:layout_weight="1.0" android:text="OI" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" android:gravity="end" />
     <TextView android:id="@+id/hdrOiPct" android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_weight="0.7" android:text="OI%" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" android:gravity="end" />
     <TextView android:id="@+id/hdrLtp" android:layout_width="0dp" android:layout_height="wrap_content"

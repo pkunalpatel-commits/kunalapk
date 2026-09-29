@@ -19,6 +19,8 @@
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
+            android:screenOrientation="fullSensor"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,16 +31,22 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"
+            android:screenOrientation="fullSensor"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:parentActivityName=".ui.MainActivity" />
 
         <activity
             android:name=".ui.HistoricalActivity"
             android:exported="false"
+            android:screenOrientation="fullSensor"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:parentActivityName=".ui.MainActivity" />
 
         <activity
             android:name=".ui.LiveExpiriesActivity"
             android:exported="false"
+            android:screenOrientation="fullSensor"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:parentActivityName=".ui.MainActivity" />
 
         <service
