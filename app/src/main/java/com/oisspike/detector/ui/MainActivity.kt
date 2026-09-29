@@ -44,6 +44,15 @@ class MainActivity : AppCompatActivity() {
         adapter = SpikeAdapter()
         list.layoutManager = LinearLayoutManager(this)
         list.adapter = adapter
+        fun bindSort(id: Int, sort: SpikeSort) {
+            findViewById<Button>(id).setOnClickListener { adapter.setSort(sort) }
+        }
+        bindSort(R.id.btnSortTimeDesc, SpikeSort.TIME_DESC)
+        bindSort(R.id.btnSortTimeAsc, SpikeSort.TIME_ASC)
+        bindSort(R.id.btnSortOiDesc, SpikeSort.OI_DESC)
+        bindSort(R.id.btnSortOiAsc, SpikeSort.OI_ASC)
+        bindSort(R.id.btnSortStrikeAsc, SpikeSort.STRIKE_ASC)
+        bindSort(R.id.btnSortLtpDesc, SpikeSort.LTP_DESC)
 
         btnStart.setOnClickListener {
             ensureNotifPermission()

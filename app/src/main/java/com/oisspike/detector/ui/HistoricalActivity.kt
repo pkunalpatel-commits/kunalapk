@@ -59,9 +59,18 @@ class HistoricalActivity : AppCompatActivity() {
         expiryBox = findViewById(R.id.histExpiryBox)
         expiryHint = findViewById(R.id.histExpiryHint)
         val list = findViewById<RecyclerView>(R.id.histList)
-        adapter = SpikeAdapter()
+        adapter = SpikeAdapter().also { it.showDate = true }
         list.layoutManager = LinearLayoutManager(this)
         list.adapter = adapter
+        fun bindSort(id: Int, sort: SpikeSort) {
+            findViewById<Button>(id).setOnClickListener { adapter.setSort(sort) }
+        }
+        bindSort(R.id.btnHistSortTimeDesc, SpikeSort.TIME_DESC)
+        bindSort(R.id.btnHistSortTimeAsc, SpikeSort.TIME_ASC)
+        bindSort(R.id.btnHistSortOiDesc, SpikeSort.OI_DESC)
+        bindSort(R.id.btnHistSortOiAsc, SpikeSort.OI_ASC)
+        bindSort(R.id.btnHistSortStrikeAsc, SpikeSort.STRIKE_ASC)
+        bindSort(R.id.btnHistSortLtpDesc, SpikeSort.LTP_DESC)
 
         val day = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val today = day.format(Calendar.getInstance().time)
