@@ -83,6 +83,7 @@ class HistoricalActivity : AppCompatActivity() {
         bindSort(R.id.btnHistSortOiAsc, SpikeSort.OI_ASC)
         bindSort(R.id.btnHistSortStrikeAsc, SpikeSort.STRIKE_ASC)
         bindSort(R.id.btnHistSortLtpDesc, SpikeSort.LTP_DESC)
+        bindSort(R.id.btnHistSortExpAsc, SpikeSort.EXPIRY_ASC)
 
         val day = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val today = day.format(Calendar.getInstance().time)

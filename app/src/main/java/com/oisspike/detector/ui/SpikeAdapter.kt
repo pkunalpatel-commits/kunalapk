@@ -17,6 +17,7 @@ enum class SpikeSort {
     OI_DESC, OI_ASC,
     LTP_DESC, LTP_ASC,
     STRIKE_ASC, STRIKE_DESC,
+    EXPIRY_ASC, EXPIRY_DESC,
 }
 
 class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
@@ -40,6 +41,12 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
 
     fun currentSort(): SpikeSort = sort
 
+    /** Shorten "2026-10-19" → "10-19" for narrow columns */
+    private fun shortExpiry(exp: String): String {
+        val parts = exp.split("-")
+        return if (parts.size >= 3) "${parts[1]}-${parts[2]}" else exp
+    }
+
     private fun applySort() {
         val sorted = when (sort) {
             SpikeSort.TIME_DESC -> raw.sortedByDescending { it.ts }
@@ -50,6 +57,8 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
             SpikeSort.LTP_ASC -> raw.sortedBy { it.ltp }
             SpikeSort.STRIKE_ASC -> raw.sortedBy { it.strike }
             SpikeSort.STRIKE_DESC -> raw.sortedByDescending { it.strike }
+            SpikeSort.EXPIRY_ASC -> raw.sortedBy { it.expiry }
+            SpikeSort.EXPIRY_DESC -> raw.sortedByDescending { it.expiry }
         }
         items.clear()
         items.addAll(sorted)
@@ -68,7 +77,8 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
         val t = if (showDate) fmtDate.format(Date(a.ts * 1000))
         else fmtTime.format(Date(a.ts * 1000))
         holder.colTime.text = t
-        holder.colStrike.text = "${a.strike.toInt()}"
+        holder.colExpiry.text = shortExpiry(a.expiry)
+        holder.colStrike.text = a.strike.toInt().toString()
         holder.colType.text = a.type
         holder.colWin.text = a.window
         holder.colOiPct.text = String.format(Locale.US, "%+.1f%%", a.oiChangePct)
@@ -78,7 +88,6 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
         val c = if (a.oiChangePct >= 0) green else red
         holder.colOiPct.setTextColor(c)
         holder.colTime.setTextColor(c)
-        // zebra
         holder.itemView.setBackgroundColor(
             if (position % 2 == 0) Color.parseColor("#1A2332") else Color.parseColor("#141C28")
         )
@@ -86,6 +95,7 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
         val colTime: TextView = v.findViewById(R.id.colTime)
+        val colExpiry: TextView = v.findViewById(R.id.colExpiry)
         val colStrike: TextView = v.findViewById(R.id.colStrike)
         val colType: TextView = v.findViewById(R.id.colType)
         val colWin: TextView = v.findViewById(R.id.colWin)

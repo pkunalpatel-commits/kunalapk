@@ -53,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         bindSort(R.id.btnSortOiAsc, SpikeSort.OI_ASC)
         bindSort(R.id.btnSortStrikeAsc, SpikeSort.STRIKE_ASC)
         bindSort(R.id.btnSortLtpDesc, SpikeSort.LTP_DESC)
+        bindSort(R.id.btnSortExpAsc, SpikeSort.EXPIRY_ASC)
 
         btnStart.setOnClickListener {
             ensureNotifPermission()

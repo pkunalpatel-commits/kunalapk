@@ -233,6 +233,8 @@
                 android:layout_height="32dp" android:textSize="10sp" android:text="Strike ↑" android:minWidth="0dp" android:paddingLeft="8dp" android:paddingRight="8dp" />
             <Button android:id="@+id/btnHistSortLtpDesc" android:layout_width="wrap_content"
                 android:layout_height="32dp" android:textSize="10sp" android:text="LTP ↓" android:minWidth="0dp" android:paddingLeft="8dp" android:paddingRight="8dp" />
+            <Button android:id="@+id/btnHistSortExpAsc" android:layout_width="wrap_content"
+                android:layout_height="32dp" android:textSize="10sp" android:text="Exp ↑" android:minWidth="0dp" android:paddingLeft="8dp" android:paddingRight="8dp" />
         </LinearLayout>
     </HorizontalScrollView>
 
@@ -242,20 +244,22 @@
         android:orientation="horizontal"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
+        android:paddingLeft="3dp"
+        android:paddingRight="3dp"
         android:background="#243044">
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.1"
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.05"
             android:text="Time" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" />
         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.0"
-            android:text="Strike" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" />
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.45"
-            android:text="CE/PE" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" android:gravity="center" />
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.5"
-            android:text="Win" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" android:gravity="center" />
+            android:text="Expiry" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" />
         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.85"
+            android:text="Strike" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.4"
+            android:text="CE/PE" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" android:gravity="center" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.4"
+            android:text="Win" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" android:gravity="center" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.75"
             android:text="OI %" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" android:gravity="end" />
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.9"
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.7"
             android:text="LTP" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" android:gravity="end" />
     </LinearLayout>
 
