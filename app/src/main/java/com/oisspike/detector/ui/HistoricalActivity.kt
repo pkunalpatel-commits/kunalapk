@@ -6,6 +6,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -73,17 +74,18 @@ class HistoricalActivity : AppCompatActivity() {
         findViewById<CheckBox>(R.id.histPe).isChecked = true
         findViewById<EditText>(R.id.histMinLtp).setText(settings.minLtp.toString())
 
-        val filtersPanel = findViewById<LinearLayout>(R.id.histFiltersPanel)
+        val filtersPanel = findViewById<View>(R.id.histFiltersPanel)
         val btnToggle = findViewById<Button>(R.id.btnToggleFilters)
-        btnToggle.setOnClickListener {
-            if (filtersPanel.visibility == View.VISIBLE) {
-                filtersPanel.visibility = View.GONE
-                btnToggle.text = "Show filters"
-            } else {
-                filtersPanel.visibility = View.VISIBLE
-                btnToggle.text = "Min filters"
-            }
+        fun setFiltersVisible(show: Boolean) {
+            filtersPanel.visibility = if (show) View.VISIBLE else View.GONE
+            btnToggle.text = if (show) "Hide options" else "Show options"
         }
+        btnToggle.setOnClickListener {
+            setFiltersVisible(filtersPanel.visibility != View.VISIBLE)
+        }
+        // Keep reference for auto-hide on scan
+        this.filtersPanelView = filtersPanel
+        this.filtersToggleBtn = btnToggle
 
         findViewById<Button>(R.id.btnFetchExpiries).setOnClickListener { fetchExpiries() }
         findViewById<Button>(R.id.btnHistScan).setOnClickListener { startScan() }
@@ -185,6 +187,7 @@ class HistoricalActivity : AppCompatActivity() {
 
         job?.cancel()
         adapter.submit(emptyList())
+        hideOptionsForResults()  // free screen for results
         statusText.text = "Scanning…"
         appendLog("Historical scan $symbol  expiries=${expiries.joinToString()}  $from → $to  ${intervalMin}m")
 

@@ -3,180 +3,191 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="10dp"
+    android:padding="8dp"
     android:background="#0F1419">
 
+    <!-- Always-visible compact header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical">
-        <TextView
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Historical OI Spike Scan"
-            android:textColor="#E7ECF3"
-            android:textSize="17sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Historical OI Spike Scan"
+                android:textColor="#E7ECF3"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/histStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Idle"
+                android:textColor="#8B9BB4"
+                android:textSize="12sp" />
+        </LinearLayout>
         <Button
             android:id="@+id/btnToggleFilters"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="0dp"
+            android:layout_height="40dp"
             android:minWidth="0dp"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp"
-            android:text="Min filters"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:text="Hide options"
             android:textSize="12sp" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/histStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Idle"
-        android:textColor="#8B9BB4"
-        android:textSize="12sp" />
-
-    <!-- Collapsible filters panel -->
-    <LinearLayout
+    <!-- Options panel (hideable) -->
+    <ScrollView
         android:id="@+id/histFiltersPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <EditText
-            android:id="@+id/histSymbol"
+        android:layout_marginTop="4dp"
+        android:maxHeight="280dp">
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Symbol (NIFTY / BANKNIFTY / FINNIFTY)"
-            android:textColor="#E7ECF3"
-            android:textColorHint="#555"
-            android:inputType="textCapCharacters"
-            android:textSize="14sp" />
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btnFetchExpiries"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Fetch Expiries" />
+            <EditText
+                android:id="@+id/histSymbol"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Symbol (NIFTY / BANKNIFTY / FINNIFTY)"
+                android:textColor="#E7ECF3"
+                android:textColorHint="#555"
+                android:inputType="textCapCharacters"
+                android:textSize="14sp" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Expiries (tick one or more)"
-            android:textColor="#8B9BB4"
-            android:textStyle="bold"
-            android:textSize="12sp" />
+            <Button
+                android:id="@+id/btnFetchExpiries"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Fetch Expiries" />
 
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Expiries (tick one or more)"
+                android:textColor="#8B9BB4"
+                android:textStyle="bold"
+                android:textSize="12sp" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:id="@+id/histExpiryBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="2dp" />
+            </HorizontalScrollView>
+
+            <TextView
+                android:id="@+id/histExpiryHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Fetch Expiries → tick → Scan"
+                android:textColor="#555"
+                android:textSize="11sp" />
+
             <LinearLayout
-                android:id="@+id/histExpiryBox"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <EditText
+                    android:id="@+id/histFrom"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="From YYYY-MM-DD"
+                    android:textColor="#E7ECF3"
+                    android:textColorHint="#555"
+                    android:textSize="13sp" />
+                <EditText
+                    android:id="@+id/histTo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:hint="To YYYY-MM-DD"
+                    android:textColor="#E7ECF3"
+                    android:textColorHint="#555"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <EditText
+                    android:id="@+id/histInterval"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Candle min"
+                    android:inputType="number"
+                    android:textColor="#E7ECF3"
+                    android:textColorHint="#555"
+                    android:textSize="13sp" />
+                <EditText
+                    android:id="@+id/histAtm"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:hint="ATM ±"
+                    android:inputType="number"
+                    android:textColor="#E7ECF3"
+                    android:textColorHint="#555"
+                    android:textSize="13sp" />
+                <EditText
+                    android:id="@+id/histMinLtp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:hint="Min LTP"
+                    android:inputType="numberDecimal"
+                    android:textColor="#E7ECF3"
+                    android:textColorHint="#555"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="2dp" />
-        </HorizontalScrollView>
-
-        <TextView
-            android:id="@+id/histExpiryHint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Fetch Expiries → tick → Scan"
-            android:textColor="#555"
-            android:textSize="11sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <EditText
-                android:id="@+id/histFrom"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="From YYYY-MM-DD"
-                android:textColor="#E7ECF3"
-                android:textColorHint="#555"
-                android:textSize="13sp" />
-            <EditText
-                android:id="@+id/histTo"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                android:hint="To YYYY-MM-DD"
-                android:textColor="#E7ECF3"
-                android:textColorHint="#555"
-                android:textSize="13sp" />
+                android:gravity="center_vertical">
+                <CheckBox
+                    android:id="@+id/histCe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CE"
+                    android:textColor="#E7ECF3" />
+                <CheckBox
+                    android:id="@+id/histPe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="PE"
+                    android:textColor="#E7ECF3" />
+            </LinearLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <EditText
-                android:id="@+id/histInterval"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Candle min"
-                android:inputType="number"
-                android:textColor="#E7ECF3"
-                android:textColorHint="#555"
-                android:textSize="13sp" />
-            <EditText
-                android:id="@+id/histAtm"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                android:hint="ATM ±"
-                android:inputType="number"
-                android:textColor="#E7ECF3"
-                android:textColorHint="#555"
-                android:textSize="13sp" />
-            <EditText
-                android:id="@+id/histMinLtp"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                android:hint="Min LTP"
-                android:inputType="numberDecimal"
-                android:textColor="#E7ECF3"
-                android:textColorHint="#555"
-                android:textSize="13sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-            <CheckBox
-                android:id="@+id/histCe"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="CE"
-                android:textColor="#E7ECF3" />
-            <CheckBox
-                android:id="@+id/histPe"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="PE"
-                android:textColor="#E7ECF3" />
-        </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp">
         <Button
             android:id="@+id/btnHistScan"
             android:layout_width="0dp"
@@ -195,38 +206,41 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="6dp"
         android:text="Results"
         android:textColor="#8B9BB4"
         android:textStyle="bold" />
 
-    <!-- Large results area -->
+    <!-- Results take almost all remaining space -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/histList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="2dp" />
+        android:layout_marginTop="2dp"
+        android:clipToPadding="false" />
 
     <TextView
+        android:id="@+id/histLogLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Log"
         android:textColor="#8B9BB4"
         android:textStyle="bold"
-        android:textSize="12sp" />
+        android:textSize="11sp" />
 
     <ScrollView
+        android:id="@+id/histLogScroll"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
+        android:layout_height="56dp"
         android:background="#1A2332">
         <TextView
             android:id="@+id/histLog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
-            android:padding="6dp"
+            android:padding="4dp"
             android:textColor="#8B9BB4"
-            android:textSize="11sp" />
+            android:textSize="10sp" />
     </ScrollView>
 </LinearLayout>
