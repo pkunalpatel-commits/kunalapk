@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#0F1419">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Live scan — custom expiries"
+        android:textColor="#E7ECF3"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/liveExpiryStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="#8B9BB4"
+        android:textSize="13sp" />
+
+    <EditText
+        android:id="@+id/liveExpirySymbol"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Symbol (NIFTY / BANKNIFTY / FINNIFTY)"
+        android:inputType="textCapCharacters"
+        android:textColor="#E7ECF3"
+        android:textColorHint="#555" />
+
+    <Button
+        android:id="@+id/btnLiveFetchExpiries"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Fetch Expiries" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tick expiries for live scan"
+        android:textColor="#8B9BB4"
+        android:textStyle="bold" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/liveExpiryBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="4dp" />
+    </HorizontalScrollView>
+
+    <Button
+        android:id="@+id/btnLiveApplyExpiries"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Apply Ticked Expiries to Live Scan" />
+
+    <Button
+        android:id="@+id/btnLiveClearExpiries"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Clear Override (use nearest N)" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Same flow as desktop: Fetch → tick → Apply. Live Start uses these expiries for that symbol."
+        android:textColor="#555"
+        android:textSize="12sp" />
+</LinearLayout>

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -33,10 +34,12 @@ class HistoricalActivity : AppCompatActivity() {
     private lateinit var settings: AppSettings
     private lateinit var logText: TextView
     private lateinit var statusText: TextView
+    private lateinit var expiryBox: LinearLayout
+    private lateinit var expiryHint: TextView
     private lateinit var adapter: SpikeAdapter
     private var job: Job? = null
+    private val expiryChecks = linkedMapOf<String, CheckBox>()
 
-    // Reuse SpikeAdapter by mapping HistoricalSpike → SpikeAlert
     private fun toAlert(h: HistoricalSpike) = SpikeAlert(
         h.symbol, h.expiry, h.strike, h.type, h.window,
         h.oi, h.oiChangePct, h.ltp, h.priceChangePct, h.ts,
@@ -51,6 +54,8 @@ class HistoricalActivity : AppCompatActivity() {
 
         logText = findViewById(R.id.histLog)
         statusText = findViewById(R.id.histStatus)
+        expiryBox = findViewById(R.id.histExpiryBox)
+        expiryHint = findViewById(R.id.histExpiryHint)
         val list = findViewById<RecyclerView>(R.id.histList)
         adapter = SpikeAdapter()
         list.layoutManager = LinearLayoutManager(this)
@@ -66,11 +71,66 @@ class HistoricalActivity : AppCompatActivity() {
         findViewById<CheckBox>(R.id.histCe).isChecked = true
         findViewById<CheckBox>(R.id.histPe).isChecked = true
 
+        findViewById<Button>(R.id.btnFetchExpiries).setOnClickListener { fetchExpiries() }
         findViewById<Button>(R.id.btnHistScan).setOnClickListener { startScan() }
         findViewById<Button>(R.id.btnHistStop).setOnClickListener {
             job?.cancel()
             statusText.text = "Stopped"
             appendLog("Scan cancelled")
+        }
+    }
+
+    private fun selectedExpiries(): List<String> {
+        return expiryChecks.filter { it.value.isChecked }.map { it.key }
+    }
+
+    private fun rebuildExpiryChecks(expiries: List<String>) {
+        expiryBox.removeAllViews()
+        expiryChecks.clear()
+        if (expiries.isEmpty()) {
+            expiryHint.text = "No expiries found."
+            return
+        }
+        expiries.forEachIndexed { index, exp ->
+            val cb = CheckBox(this).apply {
+                text = exp
+                setTextColor(0xFFE7ECF3.toInt())
+                // Tick first expiry by default (same as desktop)
+                isChecked = index == 0
+            }
+            expiryBox.addView(cb)
+            expiryChecks[exp] = cb
+        }
+        expiryHint.text = "${expiries.size} expiries loaded — tick the ones to scan, then Scan Historical."
+    }
+
+    private fun fetchExpiries() {
+        if (settings.clientId.isBlank() || settings.accessToken.isBlank()) {
+            Toast.makeText(this, "Set Dhan Client ID + Token in Settings first", Toast.LENGTH_LONG).show()
+            return
+        }
+        val symbol = findViewById<EditText>(R.id.histSymbol).text.toString().trim().uppercase()
+        val info = Defaults.SYMBOLS[symbol]
+        if (info == null) {
+            Toast.makeText(this, "Symbol not supported: $symbol", Toast.LENGTH_SHORT).show()
+            return
+        }
+        statusText.text = "Fetching expiries…"
+        appendLog("Fetching expiries for $symbol…")
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val list = withContext(Dispatchers.IO) {
+                    DhanClient(settings.clientId, settings.accessToken)
+                        .getExpiryListRaw(info.scrip, info.seg)
+                }
+                rebuildExpiryChecks(list)
+                statusText.text = "Expiries loaded (${list.size})"
+                appendLog("Found ${list.size} expiries")
+            } catch (e: Exception) {
+                statusText.text = "Fetch failed"
+                appendLog("ERROR fetch expiries: ${e.message}")
+                Toast.makeText(this@HistoricalActivity, e.message, Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -96,26 +156,27 @@ class HistoricalActivity : AppCompatActivity() {
             return
         }
 
+        // Require Fetch Expiries + tick marks (same as desktop)
+        if (expiryChecks.isEmpty()) {
+            Toast.makeText(this, "Click Fetch Expiries first, then tick expiries to scan", Toast.LENGTH_LONG).show()
+            return
+        }
+        val expiries = selectedExpiries()
+        if (expiries.isEmpty()) {
+            Toast.makeText(this, "Tick at least one expiry", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         job?.cancel()
         adapter.submit(emptyList())
         statusText.text = "Scanning…"
-        appendLog("Starting historical scan $symbol $from → $to  interval=${intervalMin}m")
+        appendLog("Historical scan $symbol  expiries=${expiries.joinToString()}  $from → $to  ${intervalMin}m")
 
         job = CoroutineScope(Dispatchers.Main).launch {
             val results = mutableListOf<SpikeAlert>()
             try {
                 withContext(Dispatchers.IO) {
                     val client = DhanClient(settings.clientId, settings.accessToken)
-                    val expiries = client.getExpiryListRaw(info.scrip, info.seg)
-                        .take(settings.expiriesPerSymbol.coerceAtLeast(1))
-                    if (expiries.isEmpty()) {
-                        withContext(Dispatchers.Main) { appendLog("No expiries found") }
-                        return@withContext
-                    }
-                    withContext(Dispatchers.Main) {
-                        appendLog("Expiries: ${expiries.joinToString()}")
-                    }
-
                     val (native, factor) = HistoricalEngine.nativeInterval(intervalMin)
                     val instrument = if (symbol in listOf("NIFTY", "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY", "SENSEX"))
                         "OPTIDX" else "OPTSTK"
@@ -176,7 +237,6 @@ class HistoricalActivity : AppCompatActivity() {
                         }
                     }
                 }
-                // newest first
                 results.sortByDescending { it.ts }
                 adapter.submit(results)
                 statusText.text = "Done — ${results.size} spike(s)"

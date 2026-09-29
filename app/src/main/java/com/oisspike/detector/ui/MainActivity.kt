@@ -58,6 +58,9 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnHistorical).setOnClickListener {
             startActivity(Intent(this, HistoricalActivity::class.java))
         }
+        findViewById<Button>(R.id.btnLiveExpiries).setOnClickListener {
+            startActivity(Intent(this, LiveExpiriesActivity::class.java))
+        }
 
         refreshUi()
     }

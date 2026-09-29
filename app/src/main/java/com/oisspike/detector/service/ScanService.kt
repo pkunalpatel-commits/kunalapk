@@ -112,8 +112,13 @@ class ScanService : Service() {
                         if (!isRunning) break
                         val info = Defaults.SYMBOLS[symbol] ?: continue
                         try {
-                            val expiries = client.getExpiryListRaw(info.scrip, info.seg)
-                                .take(settings.expiriesPerSymbol)
+                            val custom = settings.getCustomExpiries(symbol)
+                            val expiries = if (custom.isNotEmpty()) {
+                                custom
+                            } else {
+                                client.getExpiryListRaw(info.scrip, info.seg)
+                                    .take(settings.expiriesPerSymbol)
+                            }
                             for (expiry in expiries) {
                                 if (!isRunning) break
                                 try {

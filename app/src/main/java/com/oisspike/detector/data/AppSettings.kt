@@ -90,4 +90,18 @@ class AppSettings(context: Context) {
     var symbolsEnabled: Set<String>
         get() = prefs.getStringSet("symbols_enabled", setOf("NIFTY")) ?: setOf("NIFTY")
         set(v) = prefs.edit().putStringSet("symbols_enabled", v).apply()
+
+    /** Per-symbol hand-picked expiries (tick marks). Empty = use nearest N. */
+    fun getCustomExpiries(symbol: String): List<String> {
+        val raw = prefs.getString("custom_expiries_$symbol", "") ?: ""
+        return raw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+    }
+
+    fun setCustomExpiries(symbol: String, expiries: List<String>) {
+        prefs.edit().putString("custom_expiries_$symbol", expiries.joinToString(",")).apply()
+    }
+
+    fun clearCustomExpiries(symbol: String) {
+        prefs.edit().remove("custom_expiries_$symbol").apply()
+    }
 }
