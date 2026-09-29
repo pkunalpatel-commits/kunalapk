@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -70,6 +71,19 @@ class HistoricalActivity : AppCompatActivity() {
         findViewById<EditText>(R.id.histAtm).setText(settings.atmRangeStrikes.toString())
         findViewById<CheckBox>(R.id.histCe).isChecked = true
         findViewById<CheckBox>(R.id.histPe).isChecked = true
+        findViewById<EditText>(R.id.histMinLtp).setText(settings.minLtp.toString())
+
+        val filtersPanel = findViewById<LinearLayout>(R.id.histFiltersPanel)
+        val btnToggle = findViewById<Button>(R.id.btnToggleFilters)
+        btnToggle.setOnClickListener {
+            if (filtersPanel.visibility == View.VISIBLE) {
+                filtersPanel.visibility = View.GONE
+                btnToggle.text = "Show filters"
+            } else {
+                filtersPanel.visibility = View.VISIBLE
+                btnToggle.text = "Min filters"
+            }
+        }
 
         findViewById<Button>(R.id.btnFetchExpiries).setOnClickListener { fetchExpiries() }
         findViewById<Button>(R.id.btnHistScan).setOnClickListener { startScan() }
@@ -146,6 +160,8 @@ class HistoricalActivity : AppCompatActivity() {
         val atmN = findViewById<EditText>(R.id.histAtm).text.toString().toIntOrNull() ?: 5
         val wantCe = findViewById<CheckBox>(R.id.histCe).isChecked
         val wantPe = findViewById<CheckBox>(R.id.histPe).isChecked
+        val minLtpUi = findViewById<EditText>(R.id.histMinLtp).text.toString().toFloatOrNull()
+        if (minLtpUi != null) settings.minLtp = minLtpUi
         if (!wantCe && !wantPe) {
             Toast.makeText(this, "Tick CE and/or PE", Toast.LENGTH_SHORT).show()
             return

@@ -5,9 +5,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.os.Handler
 import android.os.Looper
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -60,6 +62,18 @@ class MainActivity : AppCompatActivity() {
         }
         findViewById<Button>(R.id.btnLiveExpiries).setOnClickListener {
             startActivity(Intent(this, LiveExpiriesActivity::class.java))
+        }
+
+        val extraPanel = findViewById<LinearLayout>(R.id.mainExtraPanel)
+        val btnToggleExtra = findViewById<Button>(R.id.btnToggleMainExtra)
+        btnToggleExtra.setOnClickListener {
+            if (extraPanel.visibility == View.VISIBLE) {
+                extraPanel.visibility = View.GONE
+                btnToggleExtra.text = "Show menu"
+            } else {
+                extraPanel.visibility = View.VISIBLE
+                btnToggleExtra.text = "Min menu"
+            }
         }
 
         refreshUi()
