@@ -1,5 +1,6 @@
 package com.oisspike.detector.ui
 
+import com.oisspike.detector.R
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
