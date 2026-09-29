@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="#0F1419">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Historical OI Spike Scan"
+        android:textColor="#E7ECF3"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/histStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Idle"
+        android:textColor="#8B9BB4" />
+
+    <EditText
+        android:id="@+id/histSymbol"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Symbol (NIFTY / BANKNIFTY / FINNIFTY)"
+        android:textColor="#E7ECF3"
+        android:textColorHint="#555"
+        android:inputType="textCapCharacters" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <EditText
+            android:id="@+id/histFrom"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="From YYYY-MM-DD"
+            android:textColor="#E7ECF3"
+            android:textColorHint="#555" />
+        <EditText
+            android:id="@+id/histTo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:hint="To YYYY-MM-DD"
+            android:textColor="#E7ECF3"
+            android:textColorHint="#555" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <EditText
+            android:id="@+id/histInterval"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Candle min (1/3/5/15/30)"
+            android:inputType="number"
+            android:textColor="#E7ECF3"
+            android:textColorHint="#555" />
+        <EditText
+            android:id="@+id/histAtm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:hint="ATM ± strikes"
+            android:inputType="number"
+            android:textColor="#E7ECF3"
+            android:textColorHint="#555" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <CheckBox
+            android:id="@+id/histCe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CE"
+            android:textColor="#E7ECF3" />
+        <CheckBox
+            android:id="@+id/histPe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="PE"
+            android:textColor="#E7ECF3" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btnHistScan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Scan Historical" />
+        <Button
+            android:id="@+id/btnHistStop"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Stop" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Results (uses 1m/5m/10m thresholds from Settings)"
+        android:textColor="#8B9BB4"
+        android:textStyle="bold" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/histList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Log"
+        android:textColor="#8B9BB4"
+        android:textStyle="bold" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="#1A2332">
+        <TextView
+            android:id="@+id/histLog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:padding="8dp"
+            android:textColor="#8B9BB4"
+            android:textSize="11sp" />
+    </ScrollView>
+</LinearLayout>
