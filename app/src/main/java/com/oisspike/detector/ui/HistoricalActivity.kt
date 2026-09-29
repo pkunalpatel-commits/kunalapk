@@ -78,15 +78,17 @@ class HistoricalActivity : AppCompatActivity() {
 
         // Zoom in/out results table
         fun applyZoom(delta: Float? = null, absolute: Float? = null) {
-            val next = absolute ?: (adapter.scale + (delta ?: 0f))
-            adapter.scale = next
-            findViewById<TextView>(R.id.zoomLabel).text =
-                "${(adapter.scale * 100).toInt()}%"
-            HeaderSort.refresh(findViewById(R.id.tableHeader))
+            try {
+                val next = absolute ?: (adapter.scale + (delta ?: 0f))
+                adapter.scale = next
+                findViewById<TextView?>(R.id.zoomLabel)?.text =
+                    "${(adapter.scale * 100).toInt()}%"
+                HeaderSort.refresh(findViewById(R.id.tableHeader))
+            } catch (_: Exception) { }
         }
-        findViewById<Button>(R.id.btnZoomOut).setOnClickListener { applyZoom(delta = -0.1f) }
-        findViewById<Button>(R.id.btnZoomIn).setOnClickListener { applyZoom(delta = 0.1f) }
-        findViewById<Button>(R.id.btnZoomFit).setOnClickListener { applyZoom(absolute = 0.75f) }
+        findViewById<Button?>(R.id.btnZoomOut)?.setOnClickListener { applyZoom(delta = -0.1f) }
+        findViewById<Button?>(R.id.btnZoomIn)?.setOnClickListener { applyZoom(delta = 0.1f) }
+        findViewById<Button?>(R.id.btnZoomFit)?.setOnClickListener { applyZoom(absolute = 0.75f) }
 
 
         val day = SimpleDateFormat("yyyy-MM-dd", Locale.US)

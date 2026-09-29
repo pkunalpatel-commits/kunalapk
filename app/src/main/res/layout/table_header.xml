@@ -1,43 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:scrollbars="none">
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="2dp"
-        android:paddingBottom="2dp"
-        android:paddingLeft="2dp"
-        android:paddingRight="2dp"
-        android:background="#243044"
-        android:minWidth="360dp"
-        android:gravity="center_vertical">
+    android:orientation="horizontal"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
+    android:paddingLeft="4dp"
+    android:paddingRight="4dp"
+    android:background="#243044"
+    android:gravity="center_vertical">
 
-        <TextView android:id="@+id/hdrTime" android:layout_width="72dp" android:layout_height="36dp"
-            android:text="Time ↕" android:textColor="#93C5FD" android:textSize="11sp" android:textStyle="bold"
-            android:gravity="center_vertical" android:paddingLeft="4dp" android:background="?android:attr/selectableItemBackground" />
-        <TextView android:id="@+id/hdrExpiry" android:layout_width="52dp" android:layout_height="36dp"
-            android:text="Exp ↕" android:textColor="#93C5FD" android:textSize="11sp" android:textStyle="bold"
-            android:gravity="center_vertical" android:background="?android:attr/selectableItemBackground" />
-        <TextView android:id="@+id/hdrStrike" android:layout_width="56dp" android:layout_height="36dp"
-            android:text="Strike ↕" android:textColor="#93C5FD" android:textSize="11sp" android:textStyle="bold"
-            android:gravity="center_vertical" android:background="?android:attr/selectableItemBackground" />
-        <TextView android:id="@+id/hdrType" android:layout_width="36dp" android:layout_height="36dp"
-            android:text="CE ↕" android:textColor="#93C5FD" android:textSize="11sp" android:textStyle="bold"
-            android:gravity="center" android:background="?android:attr/selectableItemBackground" />
-        <TextView android:id="@+id/hdrWin" android:layout_width="36dp" android:layout_height="36dp"
-            android:text="Win ↕" android:textColor="#93C5FD" android:textSize="11sp" android:textStyle="bold"
-            android:gravity="center" android:background="?android:attr/selectableItemBackground" />
-        <TextView android:id="@+id/hdrOi" android:layout_width="64dp" android:layout_height="36dp"
-            android:text="OI ↕" android:textColor="#93C5FD" android:textSize="11sp" android:textStyle="bold"
-            android:gravity="center_vertical|end" android:paddingRight="4dp" android:background="?android:attr/selectableItemBackground" />
-        <TextView android:id="@+id/hdrOiPct" android:layout_width="56dp" android:layout_height="36dp"
-            android:text="OI% ↕" android:textColor="#93C5FD" android:textSize="11sp" android:textStyle="bold"
-            android:gravity="center_vertical|end" android:paddingRight="4dp" android:background="?android:attr/selectableItemBackground" />
-        <TextView android:id="@+id/hdrLtp" android:layout_width="52dp" android:layout_height="36dp"
-            android:text="LTP ↕" android:textColor="#93C5FD" android:textSize="11sp" android:textStyle="bold"
-            android:gravity="center_vertical|end" android:paddingRight="4dp" android:background="?android:attr/selectableItemBackground" />
-    </LinearLayout>
-</HorizontalScrollView>
+    <TextView android:id="@+id/hdrTime" android:layout_width="0dp" android:layout_height="36dp"
+        android:layout_weight="1.1" android:text="Time ↕" android:textColor="#93C5FD" android:textSize="11sp"
+        android:textStyle="bold" android:gravity="center_vertical"
+        android:background="?android:attr/selectableItemBackground" />
+    <TextView android:id="@+id/hdrExpiry" android:layout_width="0dp" android:layout_height="36dp"
+        android:layout_weight="0.9" android:text="Exp ↕" android:textColor="#93C5FD" android:textSize="11sp"
+        android:textStyle="bold" android:gravity="center_vertical"
+        android:background="?android:attr/selectableItemBackground" />
+    <TextView android:id="@+id/hdrStrike" android:layout_width="0dp" android:layout_height="36dp"
+        android:layout_weight="0.85" android:text="Strike ↕" android:textColor="#93C5FD" android:textSize="11sp"
+        android:textStyle="bold" android:gravity="center_vertical"
+        android:background="?android:attr/selectableItemBackground" />
+    <TextView android:id="@+id/hdrType" android:layout_width="0dp" android:layout_height="36dp"
+        android:layout_weight="0.45" android:text="CE ↕" android:textColor="#93C5FD" android:textSize="11sp"
+        android:textStyle="bold" android:gravity="center"
+        android:background="?android:attr/selectableItemBackground" />
+    <TextView android:id="@+id/hdrWin" android:layout_width="0dp" android:layout_height="36dp"
+        android:layout_weight="0.45" android:text="Win ↕" android:textColor="#93C5FD" android:textSize="11sp"
+        android:textStyle="bold" android:gravity="center"
+        android:background="?android:attr/selectableItemBackground" />
+    <TextView android:id="@+id/hdrOi" android:layout_width="0dp" android:layout_height="36dp"
+        android:layout_weight="0.8" android:text="OI ↕" android:textColor="#93C5FD" android:textSize="11sp"
+        android:textStyle="bold" android:gravity="center_vertical|end"
+        android:background="?android:attr/selectableItemBackground" />
+    <TextView android:id="@+id/hdrOiPct" android:layout_width="0dp" android:layout_height="36dp"
+        android:layout_weight="0.75" android:text="OI% ↕" android:textColor="#93C5FD" android:textSize="11sp"
+        android:textStyle="bold" android:gravity="center_vertical|end"
+        android:background="?android:attr/selectableItemBackground" />
+    <TextView android:id="@+id/hdrLtp" android:layout_width="0dp" android:layout_height="36dp"
+        android:layout_weight="0.7" android:text="LTP ↕" android:textColor="#93C5FD" android:textSize="11sp"
+        android:textStyle="bold" android:gravity="center_vertical|end"
+        android:background="?android:attr/selectableItemBackground" />
+</LinearLayout>

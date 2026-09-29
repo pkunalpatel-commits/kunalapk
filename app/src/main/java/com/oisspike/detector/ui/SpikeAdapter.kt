@@ -5,7 +5,6 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.oisspike.detector.R
@@ -33,7 +32,6 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
     private val fmtDate = SimpleDateFormat("MM-dd HH:mm", Locale.getDefault())
     var showDate: Boolean = false
 
-    /** 0.70 … 1.40 — text & column scale for zoom */
     var scale: Float = 1.0f
         set(value) {
             field = value.coerceIn(0.65f, 1.45f)
@@ -58,12 +56,10 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
         return if (parts.size >= 3) "${parts[1]}-${parts[2]}" else exp
     }
 
-    private fun formatOi(oi: Double): String {
-        return when {
-            oi >= 1_000_000 -> String.format(Locale.US, "%.1fM", oi / 1_000_000)
-            oi >= 1_000 -> String.format(Locale.US, "%.0fK", oi / 1_000)
-            else -> oi.toLong().toString()
-        }
+    private fun formatOi(oi: Double): String = when {
+        oi >= 1_000_000 -> String.format(Locale.US, "%.1fM", oi / 1_000_000)
+        oi >= 1_000 -> String.format(Locale.US, "%.0fK", oi / 1_000)
+        else -> oi.toLong().toString()
     }
 
     private fun applySort() {
@@ -97,20 +93,20 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
 
     override fun getItemCount() = items.size
 
-    private fun dp(v: View, d: Float): Int =
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, d, v.resources.displayMetrics).toInt()
-
-    private fun applyColWidth(tv: TextView, baseDp: Float) {
-        val lp = tv.layoutParams as LinearLayout.LayoutParams
-        lp.width = dp(tv, baseDp * scale)
-        tv.layoutParams = lp
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f * scale)
-    }
-
     override fun onBindViewHolder(holder: VH, position: Int) {
         val a = items[position]
         val t = if (showDate) fmtDate.format(Date(a.ts * 1000))
         else fmtTime.format(Date(a.ts * 1000))
+        val sp = 11f * scale
+        holder.colTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
+        holder.colExpiry.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
+        holder.colStrike.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
+        holder.colType.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
+        holder.colWin.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
+        holder.colOi.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
+        holder.colOiPct.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
+        holder.colLtp.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
+
         holder.colTime.text = t
         holder.colExpiry.text = shortExpiry(a.expiry)
         holder.colStrike.text = a.strike.toInt().toString()
@@ -120,27 +116,14 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
         holder.colOiPct.text = String.format(Locale.US, "%+.1f%%", a.oiChangePct)
         holder.colLtp.text = String.format(Locale.US, "%.1f", a.ltp)
 
-        applyColWidth(holder.colTime, 72f)
-        applyColWidth(holder.colExpiry, 52f)
-        applyColWidth(holder.colStrike, 56f)
-        applyColWidth(holder.colType, 36f)
-        applyColWidth(holder.colWin, 36f)
-        applyColWidth(holder.colOi, 64f)
-        applyColWidth(holder.colOiPct, 56f)
-        applyColWidth(holder.colLtp, 52f)
-
         val green = Color.parseColor("#86EFAC")
         val red = Color.parseColor("#FCA5A5")
         val c = if (a.oiChangePct >= 0) green else red
         holder.colOiPct.setTextColor(c)
         holder.colTime.setTextColor(c)
-        val bg = if (position % 2 == 0) Color.parseColor("#1A2332") else Color.parseColor("#141C28")
-        holder.itemView.setBackgroundColor(bg)
-        (holder.colTime.parent as? View)?.setBackgroundColor(bg)
-
-        val padV = dp(holder.itemView, 7f * scale)
-        val row = holder.colTime.parent as? View
-        row?.setPadding(dp(holder.itemView, 4f), padV, dp(holder.itemView, 4f), padV)
+        holder.itemView.setBackgroundColor(
+            if (position % 2 == 0) Color.parseColor("#1A2332") else Color.parseColor("#141C28")
+        )
     }
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
