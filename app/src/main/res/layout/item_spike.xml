@@ -3,28 +3,27 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingTop="6dp"
-    android:paddingBottom="6dp"
-    android:paddingLeft="4dp"
-    android:paddingRight="4dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
+    android:paddingLeft="2dp"
+    android:paddingRight="2dp"
     android:background="#1A2332"
-    android:layout_marginBottom="1dp"
-    android:gravity="center_vertical">
+    android:layout_marginBottom="1dp">
 
     <TextView android:id="@+id/colTime" android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="1.1" android:textColor="#86EFAC" android:textSize="11sp" android:maxLines="1" android:ellipsize="end" />
+        android:layout_weight="1.15" android:textColor="#86EFAC" android:textSize="9sp" android:maxLines="1" android:ellipsize="end" />
     <TextView android:id="@+id/colExpiry" android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="0.9" android:textColor="#E7ECF3" android:textSize="11sp" android:maxLines="1" />
+        android:layout_weight="0.85" android:textColor="#E7ECF3" android:textSize="9sp" android:maxLines="1" />
     <TextView android:id="@+id/colStrike" android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="0.85" android:textColor="#E7ECF3" android:textSize="11sp" android:textStyle="bold" android:maxLines="1" />
+        android:layout_weight="0.8" android:textColor="#E7ECF3" android:textSize="9sp" android:textStyle="bold" android:maxLines="1" />
     <TextView android:id="@+id/colType" android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="0.45" android:textColor="#E7ECF3" android:textSize="11sp" android:gravity="center" />
+        android:layout_weight="0.4" android:textColor="#E7ECF3" android:textSize="9sp" android:gravity="center" />
     <TextView android:id="@+id/colWin" android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="0.45" android:textColor="#8B9BB4" android:textSize="11sp" android:gravity="center" />
+        android:layout_weight="0.4" android:textColor="#8B9BB4" android:textSize="9sp" android:gravity="center" />
     <TextView android:id="@+id/colOi" android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="0.8" android:textColor="#8B9BB4" android:textSize="11sp" android:gravity="end" android:maxLines="1" />
+        android:layout_weight="0.75" android:textColor="#8B9BB4" android:textSize="9sp" android:gravity="end" android:maxLines="1" />
     <TextView android:id="@+id/colOiPct" android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="0.75" android:textColor="#86EFAC" android:textSize="11sp" android:gravity="end" android:maxLines="1" />
+        android:layout_weight="0.7" android:textColor="#86EFAC" android:textSize="9sp" android:gravity="end" android:maxLines="1" />
     <TextView android:id="@+id/colLtp" android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="0.7" android:textColor="#8B9BB4" android:textSize="11sp" android:gravity="end" android:maxLines="1" />
+        android:layout_weight="0.65" android:textColor="#8B9BB4" android:textSize="9sp" android:gravity="end" android:maxLines="1" />
 </LinearLayout>

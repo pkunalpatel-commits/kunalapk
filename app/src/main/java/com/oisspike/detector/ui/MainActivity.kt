@@ -5,12 +5,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -30,92 +31,93 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnStop: Button
     private lateinit var adapter: SpikeAdapter
     private val handler = Handler(Looper.getMainLooper())
-    private val listener: () -> Unit = { handler.post { refreshUi() }; Unit }
+    private val listener: () -> Unit = {
+        handler.post { refreshUi() }
+        Unit
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        try {
+            setContentView(R.layout.activity_main)
 
-        statusText = findViewById(R.id.statusText)
-        logText = findViewById(R.id.logText)
-        btnStart = findViewById(R.id.btnStart)
-        btnStop = findViewById(R.id.btnStop)
-        val list = findViewById<RecyclerView>(R.id.spikeList)
-        adapter = SpikeAdapter()
-        list.layoutManager = LinearLayoutManager(this)
-        list.adapter = adapter
-        HeaderSort.wire(this, findViewById(R.id.tableHeader), adapter)
+            statusText = findViewById(R.id.statusText)
+            logText = findViewById(R.id.logText)
+            btnStart = findViewById(R.id.btnStart)
+            btnStop = findViewById(R.id.btnStop)
 
-        // Zoom in/out results table
-        fun applyZoom(delta: Float? = null, absolute: Float? = null) {
-            try {
-                val next = absolute ?: (adapter.scale + (delta ?: 0f))
-                adapter.scale = next
-                findViewById<TextView?>(R.id.zoomLabel)?.text =
-                    "${(adapter.scale * 100).toInt()}%"
-                HeaderSort.refresh(findViewById(R.id.tableHeader))
-            } catch (_: Exception) { }
-        }
-        findViewById<Button?>(R.id.btnZoomOut)?.setOnClickListener { applyZoom(delta = -0.1f) }
-        findViewById<Button?>(R.id.btnZoomIn)?.setOnClickListener { applyZoom(delta = 0.1f) }
-        findViewById<Button?>(R.id.btnZoomFit)?.setOnClickListener { applyZoom(absolute = 0.75f) }
+            val list = findViewById<RecyclerView>(R.id.spikeList)
+            adapter = SpikeAdapter()
+            list.layoutManager = LinearLayoutManager(this)
+            list.adapter = adapter
+            HeaderSort.wire(this, findViewById(R.id.tableHeader), adapter)
 
-
-        btnStart.setOnClickListener {
-            ensureNotifPermission()
-            ScanService.start(this)
-            refreshUi()
-        }
-        btnStop.setOnClickListener {
-            ScanService.stop(this)
-            handler.postDelayed({ refreshUi() }, 500)
-        }
-        findViewById<Button>(R.id.btnSettings).setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
-        }
-        findViewById<Button>(R.id.btnHistorical).setOnClickListener {
-            startActivity(Intent(this, HistoricalActivity::class.java))
-        }
-        findViewById<Button>(R.id.btnLiveExpiries).setOnClickListener {
-            startActivity(Intent(this, LiveExpiriesActivity::class.java))
-        }
-
-        val extraPanel = findViewById<LinearLayout>(R.id.mainExtraPanel)
-        val btnToggleExtra = findViewById<Button>(R.id.btnToggleMainExtra)
-        btnToggleExtra.setOnClickListener {
-            if (extraPanel.visibility == View.VISIBLE) {
-                extraPanel.visibility = View.GONE
-                btnToggleExtra.text = "Show menu"
-            } else {
-                extraPanel.visibility = View.VISIBLE
-                btnToggleExtra.text = "Min menu"
+            btnStart.setOnClickListener {
+                ensureNotifPermission()
+                ScanService.start(this)
+                refreshUi()
             }
-        }
+            btnStop.setOnClickListener {
+                ScanService.stop(this)
+                handler.postDelayed({ refreshUi() }, 500)
+            }
+            findViewById<Button>(R.id.btnSettings).setOnClickListener {
+                startActivity(Intent(this, SettingsActivity::class.java))
+            }
+            findViewById<Button>(R.id.btnHistorical).setOnClickListener {
+                startActivity(Intent(this, HistoricalActivity::class.java))
+            }
+            findViewById<Button>(R.id.btnLiveExpiries).setOnClickListener {
+                startActivity(Intent(this, LiveExpiriesActivity::class.java))
+            }
 
-        refreshUi()
+            val extraPanel = findViewById<LinearLayout>(R.id.mainExtraPanel)
+            val btnToggleExtra = findViewById<Button>(R.id.btnToggleMainExtra)
+            btnToggleExtra.setOnClickListener {
+                if (extraPanel.visibility == View.VISIBLE) {
+                    extraPanel.visibility = View.GONE
+                    btnToggleExtra.text = "Show menu"
+                } else {
+                    extraPanel.visibility = View.VISIBLE
+                    btnToggleExtra.text = "Min menu"
+                }
+            }
+
+            refreshUi()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Start error: ${e.message}", Toast.LENGTH_LONG).show()
+            e.printStackTrace()
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        ScanService.addListener(listener)
-        refreshUi()
-        handler.post(tick)
+        try {
+            ScanService.addListener(listener)
+            refreshUi()
+            handler.post(tick)
+        } catch (_: Exception) { }
     }
 
     override fun onPause() {
-        handler.removeCallbacks(tick)
-        ScanService.removeListener(listener)
+        try {
+            handler.removeCallbacks(tick)
+            ScanService.removeListener(listener)
+        } catch (_: Exception) { }
         super.onPause()
     }
 
     private val tick = object : Runnable {
         override fun run() {
-            refreshUi()
+            try {
+                refreshUi()
+            } catch (_: Exception) { }
             handler.postDelayed(this, 2000)
         }
     }
 
     private fun refreshUi() {
+        if (!::statusText.isInitialized) return
         val running = ScanService.isRunning
         statusText.text = if (running) {
             val sweep = if (ScanService.lastSweepTs > 0)
@@ -131,7 +133,9 @@ class MainActivity : AppCompatActivity() {
         btnStart.isEnabled = !running
         btnStop.isEnabled = running
         adapter.submit(ScanService.recentSpikes.toList())
-        logText.text = ScanService.logs.take(40).joinToString("\n")
+        logText.text = ScanService.logs.take(40).joinToString("\n").ifBlank {
+            "Log will appear here when scanning…"
+        }
     }
 
     private fun ensureNotifPermission() {

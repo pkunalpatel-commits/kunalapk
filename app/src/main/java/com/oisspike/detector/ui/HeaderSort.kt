@@ -1,18 +1,12 @@
 package com.oisspike.detector.ui
 
-import com.oisspike.detector.R
-import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.oisspike.detector.R
 
 object HeaderSort {
-    private data class Col(
-        val viewId: Int,
-        val label: String,
-        val asc: SpikeSort,
-        val desc: SpikeSort,
-    )
+    private data class Col(val id: Int, val label: String, val asc: SpikeSort, val desc: SpikeSort)
 
     private val cols = listOf(
         Col(R.id.hdrTime, "Time", SpikeSort.TIME_ASC, SpikeSort.TIME_DESC),
@@ -27,44 +21,31 @@ object HeaderSort {
 
     fun wire(activity: AppCompatActivity, root: View?, adapter: SpikeAdapter) {
         if (root == null) return
-        fun refreshLabels() {
+        fun refresh() {
             val cur = adapter.currentSort()
-            val scale = adapter.scale
             for (c in cols) {
-                val tv = root.findViewById<TextView>(c.viewId) ?: continue
-                val arrow = when (cur) {
-                    c.asc -> " ↑"
-                    c.desc -> " ↓"
-                    else -> " ↕"
+                val tv = root.findViewById<TextView>(c.id) ?: continue
+                tv.text = c.label + when (cur) {
+                    c.asc -> "↑"
+                    c.desc -> "↓"
+                    else -> ""
                 }
-                tv.text = c.label + arrow
-                try {
-                    tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f * scale)
-                } catch (_: Exception) { }
             }
         }
         for (c in cols) {
-            val tv = root.findViewById<TextView>(c.viewId) ?: continue
-            tv.isClickable = true
-            tv.isFocusable = true
+            val tv = root.findViewById<TextView>(c.id) ?: continue
             tv.setOnClickListener {
                 val cur = adapter.currentSort()
-                val next = when (cur) {
+                adapter.setSort(when (cur) {
                     c.desc -> c.asc
                     c.asc -> c.desc
                     else -> c.desc
-                }
-                adapter.setSort(next)
-                refreshLabels()
+                })
+                refresh()
             }
         }
-        root.setTag(0x70A1, Runnable { refreshLabels() })
-        refreshLabels()
+        refresh()
     }
 
-    fun refresh(root: View?) {
-        try {
-            (root?.getTag(0x70A1) as? Runnable)?.run()
-        } catch (_: Exception) { }
-    }
+    fun refresh(root: View?) { /* no-op for simple mode */ }
 }

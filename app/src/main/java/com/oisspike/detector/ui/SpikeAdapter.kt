@@ -1,7 +1,6 @@
 package com.oisspike.detector.ui
 
 import android.graphics.Color
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,29 +13,19 @@ import java.util.Date
 import java.util.Locale
 
 enum class SpikeSort {
-    TIME_DESC, TIME_ASC,
-    EXPIRY_DESC, EXPIRY_ASC,
-    STRIKE_DESC, STRIKE_ASC,
-    TYPE_ASC, TYPE_DESC,
-    WIN_ASC, WIN_DESC,
-    OI_SIZE_DESC, OI_SIZE_ASC,
-    OI_PCT_DESC, OI_PCT_ASC,
-    LTP_DESC, LTP_ASC,
+    TIME_DESC, TIME_ASC, EXPIRY_DESC, EXPIRY_ASC,
+    STRIKE_DESC, STRIKE_ASC, TYPE_ASC, TYPE_DESC,
+    WIN_ASC, WIN_DESC, OI_SIZE_DESC, OI_SIZE_ASC,
+    OI_PCT_DESC, OI_PCT_ASC, LTP_DESC, LTP_ASC,
 }
 
 class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
     private val raw = mutableListOf<SpikeAlert>()
     private val items = mutableListOf<SpikeAlert>()
     private var sort = SpikeSort.TIME_DESC
-    private val fmtTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    private val fmtTime = SimpleDateFormat("HH:mm", Locale.getDefault())
     private val fmtDate = SimpleDateFormat("MM-dd HH:mm", Locale.getDefault())
     var showDate: Boolean = false
-
-    var scale: Float = 1.0f
-        set(value) {
-            field = value.coerceIn(0.65f, 1.45f)
-            notifyDataSetChanged()
-        }
 
     fun submit(list: List<SpikeAlert>) {
         raw.clear()
@@ -52,8 +41,8 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
     fun currentSort(): SpikeSort = sort
 
     private fun shortExpiry(exp: String): String {
-        val parts = exp.split("-")
-        return if (parts.size >= 3) "${parts[1]}-${parts[2]}" else exp
+        val p = exp.split("-")
+        return if (p.size >= 3) "${p[1]}-${p[2]}" else exp
     }
 
     private fun formatOi(oi: Double): String = when {
@@ -95,30 +84,16 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val a = items[position]
-        val t = if (showDate) fmtDate.format(Date(a.ts * 1000))
+        holder.colTime.text = if (showDate) fmtDate.format(Date(a.ts * 1000))
         else fmtTime.format(Date(a.ts * 1000))
-        val sp = 11f * scale
-        holder.colTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
-        holder.colExpiry.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
-        holder.colStrike.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
-        holder.colType.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
-        holder.colWin.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
-        holder.colOi.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
-        holder.colOiPct.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
-        holder.colLtp.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
-
-        holder.colTime.text = t
         holder.colExpiry.text = shortExpiry(a.expiry)
         holder.colStrike.text = a.strike.toInt().toString()
         holder.colType.text = a.type
         holder.colWin.text = a.window
         holder.colOi.text = formatOi(a.oi)
-        holder.colOiPct.text = String.format(Locale.US, "%+.1f%%", a.oiChangePct)
-        holder.colLtp.text = String.format(Locale.US, "%.1f", a.ltp)
-
-        val green = Color.parseColor("#86EFAC")
-        val red = Color.parseColor("#FCA5A5")
-        val c = if (a.oiChangePct >= 0) green else red
+        holder.colOiPct.text = String.format(Locale.US, "%+.0f%%", a.oiChangePct)
+        holder.colLtp.text = String.format(Locale.US, "%.0f", a.ltp)
+        val c = if (a.oiChangePct >= 0) Color.parseColor("#86EFAC") else Color.parseColor("#FCA5A5")
         holder.colOiPct.setTextColor(c)
         holder.colTime.setTextColor(c)
         holder.itemView.setBackgroundColor(
