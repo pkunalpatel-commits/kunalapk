@@ -46,6 +46,19 @@ class MainActivity : AppCompatActivity() {
         list.adapter = adapter
         HeaderSort.wire(this, findViewById(R.id.tableHeader), adapter)
 
+        // Zoom in/out results table
+        fun applyZoom(delta: Float? = null, absolute: Float? = null) {
+            val next = absolute ?: (adapter.scale + (delta ?: 0f))
+            adapter.scale = next
+            findViewById<TextView>(R.id.zoomLabel).text =
+                "${(adapter.scale * 100).toInt()}%"
+            HeaderSort.refresh(findViewById(R.id.tableHeader))
+        }
+        findViewById<Button>(R.id.btnZoomOut).setOnClickListener { applyZoom(delta = -0.1f) }
+        findViewById<Button>(R.id.btnZoomIn).setOnClickListener { applyZoom(delta = 0.1f) }
+        findViewById<Button>(R.id.btnZoomFit).setOnClickListener { applyZoom(absolute = 0.75f) }
+
+
         btnStart.setOnClickListener {
             ensureNotifPermission()
             ScanService.start(this)

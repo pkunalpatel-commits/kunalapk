@@ -76,6 +76,19 @@ class HistoricalActivity : AppCompatActivity() {
         list.adapter = adapter
         HeaderSort.wire(this, findViewById(R.id.tableHeader), adapter)
 
+        // Zoom in/out results table
+        fun applyZoom(delta: Float? = null, absolute: Float? = null) {
+            val next = absolute ?: (adapter.scale + (delta ?: 0f))
+            adapter.scale = next
+            findViewById<TextView>(R.id.zoomLabel).text =
+                "${(adapter.scale * 100).toInt()}%"
+            HeaderSort.refresh(findViewById(R.id.tableHeader))
+        }
+        findViewById<Button>(R.id.btnZoomOut).setOnClickListener { applyZoom(delta = -0.1f) }
+        findViewById<Button>(R.id.btnZoomIn).setOnClickListener { applyZoom(delta = 0.1f) }
+        findViewById<Button>(R.id.btnZoomFit).setOnClickListener { applyZoom(absolute = 0.75f) }
+
+
         val day = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val today = day.format(Calendar.getInstance().time)
         findViewById<EditText>(R.id.histFrom).setText(today)

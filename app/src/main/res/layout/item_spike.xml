@@ -14,7 +14,7 @@
     android:paddingRight="4dp"
     android:background="#1A2332"
     android:gravity="center_vertical"
-    android:minWidth="520dp">
+    android:minWidth="360dp">
 
     <TextView
         android:id="@+id/colTime"

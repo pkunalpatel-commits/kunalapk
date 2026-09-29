@@ -1,9 +1,11 @@
 package com.oisspike.detector.ui
 
 import android.graphics.Color
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.oisspike.detector.R
@@ -30,6 +32,13 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
     private val fmtTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     private val fmtDate = SimpleDateFormat("MM-dd HH:mm", Locale.getDefault())
     var showDate: Boolean = false
+
+    /** 0.70 … 1.40 — text & column scale for zoom */
+    var scale: Float = 1.0f
+        set(value) {
+            field = value.coerceIn(0.65f, 1.45f)
+            notifyDataSetChanged()
+        }
 
     fun submit(list: List<SpikeAlert>) {
         raw.clear()
@@ -88,6 +97,16 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
 
     override fun getItemCount() = items.size
 
+    private fun dp(v: View, d: Float): Int =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, d, v.resources.displayMetrics).toInt()
+
+    private fun applyColWidth(tv: TextView, baseDp: Float) {
+        val lp = tv.layoutParams as LinearLayout.LayoutParams
+        lp.width = dp(tv, baseDp * scale)
+        tv.layoutParams = lp
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f * scale)
+    }
+
     override fun onBindViewHolder(holder: VH, position: Int) {
         val a = items[position]
         val t = if (showDate) fmtDate.format(Date(a.ts * 1000))
@@ -100,6 +119,16 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
         holder.colOi.text = formatOi(a.oi)
         holder.colOiPct.text = String.format(Locale.US, "%+.1f%%", a.oiChangePct)
         holder.colLtp.text = String.format(Locale.US, "%.1f", a.ltp)
+
+        applyColWidth(holder.colTime, 72f)
+        applyColWidth(holder.colExpiry, 52f)
+        applyColWidth(holder.colStrike, 56f)
+        applyColWidth(holder.colType, 36f)
+        applyColWidth(holder.colWin, 36f)
+        applyColWidth(holder.colOi, 64f)
+        applyColWidth(holder.colOiPct, 56f)
+        applyColWidth(holder.colLtp, 52f)
+
         val green = Color.parseColor("#86EFAC")
         val red = Color.parseColor("#FCA5A5")
         val c = if (a.oiChangePct >= 0) green else red
@@ -108,6 +137,10 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
         val bg = if (position % 2 == 0) Color.parseColor("#1A2332") else Color.parseColor("#141C28")
         holder.itemView.setBackgroundColor(bg)
         (holder.colTime.parent as? View)?.setBackgroundColor(bg)
+
+        val padV = dp(holder.itemView, 7f * scale)
+        val row = holder.colTime.parent as? View
+        row?.setPadding(dp(holder.itemView, 4f), padV, dp(holder.itemView, 4f), padV)
     }
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
