@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnStop: Button
     private lateinit var adapter: SpikeAdapter
     private val handler = Handler(Looper.getMainLooper())
-    private val listener = { handler.post { refreshUi() } }
+    private val listener: () -> Unit = { handler.post { refreshUi() }; Unit }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
