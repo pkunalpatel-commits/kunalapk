@@ -74,23 +74,7 @@ class HistoricalActivity : AppCompatActivity() {
         adapter = SpikeAdapter().also { it.showDate = true }
         list.layoutManager = LinearLayoutManager(this)
         list.adapter = adapter
-        fun bindSort(id: Int, sort: SpikeSort) {
-            findViewById<Button>(id).setOnClickListener { adapter.setSort(sort) }
-        }
-        bindSort(R.id.btnHistSortTimeDesc, SpikeSort.TIME_DESC)
-        bindSort(R.id.btnHistSortTimeAsc, SpikeSort.TIME_ASC)
-        bindSort(R.id.btnHistSortExpDesc, SpikeSort.EXPIRY_DESC)
-        bindSort(R.id.btnHistSortExpAsc, SpikeSort.EXPIRY_ASC)
-        bindSort(R.id.btnHistSortStrikeDesc, SpikeSort.STRIKE_DESC)
-        bindSort(R.id.btnHistSortStrikeAsc, SpikeSort.STRIKE_ASC)
-        bindSort(R.id.btnHistSortTypeAsc, SpikeSort.TYPE_ASC)
-        bindSort(R.id.btnHistSortWinAsc, SpikeSort.WIN_ASC)
-        bindSort(R.id.btnHistSortOiSizeDesc, SpikeSort.OI_SIZE_DESC)
-        bindSort(R.id.btnHistSortOiSizeAsc, SpikeSort.OI_SIZE_ASC)
-        bindSort(R.id.btnHistSortOiDesc, SpikeSort.OI_PCT_DESC)
-        bindSort(R.id.btnHistSortOiAsc, SpikeSort.OI_PCT_ASC)
-        bindSort(R.id.btnHistSortLtpDesc, SpikeSort.LTP_DESC)
-        bindSort(R.id.btnHistSortLtpAsc, SpikeSort.LTP_ASC)
+        HeaderSort.wire(this, findViewById(R.id.tableHeader), adapter)
 
         val day = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val today = day.format(Calendar.getInstance().time)

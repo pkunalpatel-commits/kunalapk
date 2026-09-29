@@ -84,66 +84,12 @@
             android:text="Live Expiries (Fetch + Tick)" />
     </LinearLayout>
 
-    <!-- Sort bar: all columns asc + desc -->
-    <HorizontalScrollView
+    <!-- Soft column-header buttons (tap to sort asc/desc) -->
+    <include
+        android:id="@+id/tableHeader"
+        layout="@layout/table_header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:scrollbars="none">
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <Button android:id="@+id/btnSortTimeDesc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="Time↓" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-            <Button android:id="@+id/btnSortTimeAsc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="Time↑" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-            <Button android:id="@+id/btnSortExpDesc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="Exp↓" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-            <Button android:id="@+id/btnSortExpAsc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="Exp↑" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-            <Button android:id="@+id/btnSortStrikeDesc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="Strike↓" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-            <Button android:id="@+id/btnSortStrikeAsc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="Strike↑" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-            <Button android:id="@+id/btnSortTypeAsc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="CE/PE↑" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-            <Button android:id="@+id/btnSortWinAsc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="Win↑" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-            <Button android:id="@+id/btnSortOiSizeDesc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="OI↓" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-            <Button android:id="@+id/btnSortOiSizeAsc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="OI↑" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-            <Button android:id="@+id/btnSortOiDesc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="OI%↓" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-            <Button android:id="@+id/btnSortOiAsc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="OI%↑" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-            <Button android:id="@+id/btnSortLtpDesc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="LTP↓" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-            <Button android:id="@+id/btnSortLtpAsc" android:layout_width="wrap_content" android:layout_height="32dp" android:textSize="10sp" android:text="LTP↑" android:minWidth="0dp" android:paddingLeft="7dp" android:paddingRight="7dp" />
-        </LinearLayout>
-    </HorizontalScrollView>
-
-    <!-- Table header -->
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="none">
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:background="#243044"
-        android:minWidth="520dp">
-        <TextView android:layout_width="72dp" android:layout_height="wrap_content"
-            android:text="Time" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" />
-        <TextView android:layout_width="52dp" android:layout_height="wrap_content"
-            android:text="Expiry" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" />
-        <TextView android:layout_width="56dp" android:layout_height="wrap_content"
-            android:text="Strike" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" />
-        <TextView android:layout_width="36dp" android:layout_height="wrap_content"
-            android:text="CE/PE" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" android:gravity="center" />
-        <TextView android:layout_width="36dp" android:layout_height="wrap_content"
-            android:text="Win" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" android:gravity="center" />
-        <TextView android:layout_width="64dp" android:layout_height="wrap_content"
-            android:text="OI" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" android:gravity="end" />
-        <TextView android:layout_width="56dp" android:layout_height="wrap_content"
-            android:text="OI %" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" android:gravity="end" />
-        <TextView android:layout_width="52dp" android:layout_height="wrap_content"
-            android:text="LTP" android:textColor="#8B9BB4" android:textSize="10sp" android:textStyle="bold" android:gravity="end" />
-    </LinearLayout>
-    </HorizontalScrollView>
+        android:layout_height="wrap_content" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/spikeList"    <androidx.recyclerview.widget.RecyclerView

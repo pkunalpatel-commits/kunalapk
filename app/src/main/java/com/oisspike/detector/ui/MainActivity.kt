@@ -44,23 +44,7 @@ class MainActivity : AppCompatActivity() {
         adapter = SpikeAdapter()
         list.layoutManager = LinearLayoutManager(this)
         list.adapter = adapter
-        fun bindSort(id: Int, sort: SpikeSort) {
-            findViewById<Button>(id).setOnClickListener { adapter.setSort(sort) }
-        }
-        bindSort(R.id.btnSortTimeDesc, SpikeSort.TIME_DESC)
-        bindSort(R.id.btnSortTimeAsc, SpikeSort.TIME_ASC)
-        bindSort(R.id.btnSortExpDesc, SpikeSort.EXPIRY_DESC)
-        bindSort(R.id.btnSortExpAsc, SpikeSort.EXPIRY_ASC)
-        bindSort(R.id.btnSortStrikeDesc, SpikeSort.STRIKE_DESC)
-        bindSort(R.id.btnSortStrikeAsc, SpikeSort.STRIKE_ASC)
-        bindSort(R.id.btnSortTypeAsc, SpikeSort.TYPE_ASC)
-        bindSort(R.id.btnSortWinAsc, SpikeSort.WIN_ASC)
-        bindSort(R.id.btnSortOiSizeDesc, SpikeSort.OI_SIZE_DESC)
-        bindSort(R.id.btnSortOiSizeAsc, SpikeSort.OI_SIZE_ASC)
-        bindSort(R.id.btnSortOiDesc, SpikeSort.OI_PCT_DESC)
-        bindSort(R.id.btnSortOiAsc, SpikeSort.OI_PCT_ASC)
-        bindSort(R.id.btnSortLtpDesc, SpikeSort.LTP_DESC)
-        bindSort(R.id.btnSortLtpAsc, SpikeSort.LTP_ASC)
+        HeaderSort.wire(this, findViewById(R.id.tableHeader), adapter)
 
         btnStart.setOnClickListener {
             ensureNotifPermission()
