@@ -79,7 +79,7 @@
         <CheckBox android:id="@+id/chkFin" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:text="FINNIFTY" android:textColor="#E7ECF3" />
 
-        <Button android:id="@+id/inputExtraSymbols" android:layout_width="match_parent"
+        <EditText android:id="@+id/inputExtraSymbols" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:hint="Extra F&amp;O symbols (RELIANCE,TCS,CRUDEOIL,...)"
             android:textColor="#E7ECF3" android:textColorHint="#555" android:inputType="textCapCharacters"
             android:minLines="2" />
