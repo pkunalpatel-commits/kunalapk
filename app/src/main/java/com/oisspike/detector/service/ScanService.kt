@@ -170,7 +170,7 @@ class ScanService : Service() {
             }
         }
         val ts = System.currentTimeMillis() / 1000
-        val allStrikes = oc.keys().asSequence().mapNotNull { it.toDoubleOrNull() }.sorted()
+        val allStrikes = oc.keys().asSequence().mapNotNull { it.toDoubleOrNull() }.sorted().toList()
         for (strikeKey in keys) {
             val legs = oc.optJSONObject(strikeKey) ?: continue
             val strike = strikeKey.toDoubleOrNull() ?: continue
