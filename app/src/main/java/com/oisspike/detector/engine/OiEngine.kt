@@ -16,7 +16,24 @@ data class SpikeAlert(
     val ltp: Double,
     val priceChangePct: Double,
     val ts: Long,
+    /** Strike steps from ATM: -3,-2,-1,0(ATM),+1,+2,+3. null if unknown. */
+    val atmDistance: Int? = null,
 )
+
+/** Index distance of [strike] from ATM strike nearest to [spot] among [strikes]. */
+fun atmDistanceOf(strike: Double, spot: Double, strikes: List<Double>): Int? {
+    if (strikes.isEmpty() || spot.isNaN()) return null
+    val sorted = strikes.sorted()
+    val atm = sorted.minByOrNull { kotlin.math.abs(it - spot) } ?: return null
+    val atmIdx = sorted.indexOf(atm)
+    val sIdx = sorted.indexOfFirst { kotlin.math.abs(it - strike) < 0.01 }
+    if (sIdx >= 0) return sIdx - atmIdx
+    // fallback using median step
+    val step = if (sorted.size >= 2) {
+        sorted.zipWithNext { a, b -> b - a }.filter { it > 0 }.minOrNull() ?: return null
+    } else return null
+    return kotlin.math.round((strike - atm) / step).toInt()
+}
 
 data class WindowSpec(val label: String, val windowSec: Long, val oiThreshold: Double)
 
@@ -86,6 +103,7 @@ class OiEngine(
         oi: Double,
         ltp: Double,
         ts: Long = System.currentTimeMillis() / 1000,
+        atmDistance: Int? = null,
     ): List<SpikeAlert> {
         val k = key(symbol, expiry, strike, type)
         val hist = history.getOrPut(k) { mutableListOf() }
@@ -116,6 +134,7 @@ class OiEngine(
                             oi, Math.round(oiChange * 100.0) / 100.0,
                             ltp, Math.round(priceChange * 100.0) / 100.0,
                             ts,
+                            atmDistance,
                         )
                     )
                 }

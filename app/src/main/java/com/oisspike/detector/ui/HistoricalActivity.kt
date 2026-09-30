@@ -17,6 +17,7 @@ import com.oisspike.detector.data.AppSettings
 import com.oisspike.detector.data.Defaults
 import com.oisspike.detector.engine.HistoricalEngine
 import com.oisspike.detector.engine.HistoricalSpike
+import com.oisspike.detector.engine.atmDistanceOf
 import com.oisspike.detector.engine.SpikeAlert
 import com.oisspike.detector.net.DhanApiException
 import com.oisspike.detector.net.DhanClient
@@ -57,6 +58,7 @@ class HistoricalActivity : AppCompatActivity() {
     private fun toAlert(h: HistoricalSpike) = SpikeAlert(
         h.symbol, h.expiry, h.strike, h.type, h.window,
         h.oi, h.oiChangePct, h.ltp, h.priceChangePct, h.ts,
+        h.atmDistance,
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -234,6 +236,9 @@ class HistoricalActivity : AppCompatActivity() {
                             continue
                         }
                         val contracts = pickContracts(chain, atmN, wantCe, wantPe, settings.minLtp.toDouble())
+                        val spot = chain.optDouble("last_price", Double.NaN)
+                        val allStrikes = chain.optJSONObject("oc")?.keys()?.asSequence()
+                            ?.mapNotNull { it.toDoubleOrNull() }?.sorted()?.toList() ?: emptyList()
                         withContext(Dispatchers.Main) {
                             appendLog("  ${contracts.size} contracts near ATM")
                         }
@@ -253,6 +258,7 @@ class HistoricalActivity : AppCompatActivity() {
                                 if (factor > 1) {
                                     candles = HistoricalEngine.resample(candles, factor)
                                 }
+                                val dist = atmDistanceOf(c.strike, spot, allStrikes)
                                 val found = HistoricalEngine.findHistoricalSpikes(
                                     candles, symbol, expiry, c.strike, c.type,
                                     intervalMin,
@@ -261,7 +267,8 @@ class HistoricalActivity : AppCompatActivity() {
                                     settings.oiSpike10mPct,
                                     settings.priceChangePct,
                                     settings.minOi,
-                                )
+                                    dist,
+)
                                 if (found.isNotEmpty()) {
                                     withContext(Dispatchers.Main) {
                                         appendLog("  ${c.strike} ${c.type}: ${found.size} spike(s)")

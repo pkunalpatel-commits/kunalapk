@@ -21,7 +21,9 @@
     <TextView android:id="@+id/colType" android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_weight="0.4" android:textColor="#E7ECF3" android:textSize="9sp" android:gravity="center" />
     <TextView android:id="@+id/colWin" android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="0.4" android:textColor="#8B9BB4" android:textSize="9sp" android:gravity="center" />
+        android:layout_weight="0.35" android:textColor="#8B9BB4" android:textSize="9sp" android:gravity="center" />
+    <TextView android:id="@+id/colAtm" android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="0.45" android:textColor="#93C5FD" android:textSize="9sp" android:gravity="center" android:textStyle="bold" />
     <TextView android:id="@+id/colOi" android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_weight="1.0" android:textColor="#8B9BB4" android:textSize="9sp" android:gravity="end" android:maxLines="1" />
     <TextView android:id="@+id/colOiPct" android:layout_width="0dp" android:layout_height="wrap_content"

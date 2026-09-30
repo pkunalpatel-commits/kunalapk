@@ -15,6 +15,7 @@ import com.oisspike.detector.data.AppSettings
 import com.oisspike.detector.data.Defaults
 import com.oisspike.detector.engine.OiEngine
 import com.oisspike.detector.engine.SpikeAlert
+import com.oisspike.detector.engine.atmDistanceOf
 import com.oisspike.detector.engine.buildLiveWindows
 import com.oisspike.detector.net.DhanApiException
 import com.oisspike.detector.net.DhanClient
@@ -169,9 +170,11 @@ class ScanService : Service() {
             }
         }
         val ts = System.currentTimeMillis() / 1000
+        val allStrikes = oc.keys().asSequence().mapNotNull { it.toDoubleOrNull() }.sorted()
         for (strikeKey in keys) {
             val legs = oc.optJSONObject(strikeKey) ?: continue
             val strike = strikeKey.toDoubleOrNull() ?: continue
+            val dist = if (!lastPrice.isNaN()) atmDistanceOf(strike, lastPrice, allStrikes) else null
             for (side in listOf("ce" to "CE", "pe" to "PE")) {
                 val leg = legs.optJSONObject(side.first) ?: continue
                 val oi = leg.optDouble("oi", 0.0)
@@ -179,7 +182,7 @@ class ScanService : Service() {
                 if (oi <= 0) continue
                 // Only scan contracts at/above min LTP
                 if (settings.minLtp > 0f && ltp < settings.minLtp) continue
-                val alerts = engine.ingest(symbol, expiry, strike, side.second, oi, ltp, ts)
+                val alerts = engine.ingest(symbol, expiry, strike, side.second, oi, ltp, ts, dist)
                 for (a in alerts) {
                     onSpike(a)
                 }
@@ -203,7 +206,12 @@ class ScanService : Service() {
 
     private fun formatAlert(a: SpikeAlert): String {
         val arrow = if (a.oiChangePct >= 0) "🔼" else "🔽"
-        return "$arrow OI SPIKE (${a.window}) — ${a.symbol} ${a.strike} ${a.type}\n" +
+        val atmLabel = when (val d = a.atmDistance) {
+            null -> ""
+            0 -> "  ATM"
+            else -> "  ATM${if (d > 0) "+" else ""}$d"
+        }
+        return "$arrow OI SPIKE (${a.window}) — ${a.symbol} ${a.strike} ${a.type}$atmLabel\n" +
             "Expiry: ${a.expiry}\n" +
             "OI: ${a.oi.toLong()}  (+${a.oiChangePct}% in ${a.window})\n" +
             "LTP: ${a.ltp}  (${if (a.priceChangePct >= 0) "+" else ""}${a.priceChangePct}%)"
