@@ -22,15 +22,34 @@
         android:textColor="#8B9BB4"
         android:textSize="13sp" />
 
-    <EditText
-        android:id="@+id/liveExpirySymbol"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:hint="Symbol (NIFTY / BANKNIFTY / FINNIFTY)"
-        android:inputType="textCapCharacters"
-        android:textColor="#E7ECF3"
-        android:textColorHint="#555" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <EditText
+            android:id="@+id/liveExpirySymbol"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Underlying symbol"
+            android:inputType="textCapCharacters"
+            android:textColor="#E7ECF3"
+            android:textColorHint="#555" />
+        <Button
+            android:id="@+id/btnLiveSearchSymbol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            android:textSize="12sp" />
+    </LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Search any NSE index / F&amp;O stock / MCX (230 underlyings)"
+        android:textColor="#555"
+        android:textSize="11sp" />
 
     <Button
         android:id="@+id/btnLiveFetchExpiries"

@@ -38,6 +38,13 @@ class LiveExpiriesActivity : AppCompatActivity() {
         statusText = findViewById(R.id.liveExpiryStatus)
         findViewById<EditText>(R.id.liveExpirySymbol).setText("NIFTY")
 
+        findViewById<Button>(R.id.btnLiveSearchSymbol).setOnClickListener {
+            val ed = findViewById<EditText>(R.id.liveExpirySymbol)
+            SymbolPicker.show(this, ed.text.toString()) { picked ->
+                ed.setText(picked)
+                refreshStatus()
+            }
+        }
         findViewById<Button>(R.id.btnLiveFetchExpiries).setOnClickListener { fetchExpiries() }
         findViewById<Button>(R.id.btnLiveApplyExpiries).setOnClickListener { applyExpiries() }
         findViewById<Button>(R.id.btnLiveClearExpiries).setOnClickListener { clearExpiries() }
@@ -78,11 +85,8 @@ class LiveExpiriesActivity : AppCompatActivity() {
             return
         }
         val symbol = currentSymbol()
-        val info = Defaults.SYMBOLS[symbol]
-        if (info == null) {
-            Toast.makeText(this, "Unsupported symbol: $symbol", Toast.LENGTH_SHORT).show()
-            return
-        }
+        if (!SymbolPicker.validateOrToast(this, symbol)) return
+        val info = Defaults.SYMBOLS[symbol]!!
         statusText.text = "Fetching…"
         CoroutineScope(Dispatchers.Main).launch {
             try {

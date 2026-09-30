@@ -55,15 +55,34 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/histSymbol"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Symbol (NIFTY / BANKNIFTY / FINNIFTY)"
-                android:textColor="#E7ECF3"
-                android:textColorHint="#555"
-                android:inputType="textCapCharacters"
-                android:textSize="14sp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <EditText
+                    android:id="@+id/histSymbol"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Underlying symbol"
+                    android:textColor="#E7ECF3"
+                    android:textColorHint="#555"
+                    android:inputType="textCapCharacters"
+                    android:textSize="14sp" />
+                <Button
+                    android:id="@+id/btnHistSearchSymbol"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Search"
+                    android:textSize="12sp" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Search any NSE index / F&amp;O stock / MCX underlying"
+                android:textColor="#555"
+                android:textSize="11sp" />
 
             <Button
                 android:id="@+id/btnFetchExpiries"

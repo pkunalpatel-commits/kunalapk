@@ -69,6 +69,13 @@ class SettingsActivity : AppCompatActivity() {
         chkBank.isChecked = "BANKNIFTY" in syms
         chkFin.isChecked = "FINNIFTY" in syms
         extraSym.setText(settings.extraSymbols)
+        // Optional: pick symbol into extra list
+        findViewById<Button?>(R.id.btnSearchExtra)?.setOnClickListener {
+            SymbolPicker.show(this, "") { picked ->
+                val cur = extraSym.text.toString().trim()
+                extraSym.setText(if (cur.isEmpty()) picked else "$cur,$picked")
+            }
+        }
 
         findViewById<Button>(R.id.btnSave).setOnClickListener {
             settings.clientId = clientId.text.toString().trim()

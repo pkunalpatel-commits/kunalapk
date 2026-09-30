@@ -101,6 +101,12 @@ class HistoricalActivity : AppCompatActivity() {
         this.filtersPanelView = filtersPanel
         this.filtersToggleBtn = btnToggle
 
+        findViewById<Button>(R.id.btnHistSearchSymbol).setOnClickListener {
+            val ed = findViewById<EditText>(R.id.histSymbol)
+            SymbolPicker.show(this, ed.text.toString()) { picked ->
+                ed.setText(picked)
+            }
+        }
         findViewById<Button>(R.id.btnFetchExpiries).setOnClickListener { fetchExpiries() }
         findViewById<Button>(R.id.btnHistScan).setOnClickListener { startScan() }
         findViewById<Button>(R.id.btnHistStop).setOnClickListener {
@@ -140,11 +146,8 @@ class HistoricalActivity : AppCompatActivity() {
             return
         }
         val symbol = findViewById<EditText>(R.id.histSymbol).text.toString().trim().uppercase()
-        val info = Defaults.SYMBOLS[symbol]
-        if (info == null) {
-            Toast.makeText(this, "Symbol not supported: $symbol", Toast.LENGTH_SHORT).show()
-            return
-        }
+        if (!SymbolPicker.validateOrToast(this, symbol)) return
+        val info = Defaults.SYMBOLS[symbol]!!
         statusText.text = "Fetching expiries…"
         appendLog("Fetching expiries for $symbol…")
         CoroutineScope(Dispatchers.Main).launch {
