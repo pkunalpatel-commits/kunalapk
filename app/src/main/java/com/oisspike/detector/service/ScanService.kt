@@ -182,7 +182,8 @@ class ScanService : Service() {
                 if (oi <= 0) continue
                 // Only scan contracts at/above min LTP
                 if (settings.minLtp > 0f && ltp < settings.minLtp) continue
-                val alerts = engine.ingest(symbol, expiry, strike, side.second, oi, ltp, ts, dist)
+                val spotVal = if (!lastPrice.isNaN()) lastPrice else null
+                val alerts = engine.ingest(symbol, expiry, strike, side.second, oi, ltp, ts, dist, spotVal)
                 for (a in alerts) {
                     onSpike(a)
                 }
@@ -211,8 +212,10 @@ class ScanService : Service() {
             0 -> "  ATM"
             else -> "  ATM${if (d > 0) "+" else ""}$d"
         }
+        val spotLabel = a.spot?.let { "Spot: ${String.format(java.util.Locale.US, "%.2f", it)}\n" } ?: ""
         return "$arrow OI SPIKE (${a.window}) — ${a.symbol} ${a.strike} ${a.type}$atmLabel\n" +
             "Expiry: ${a.expiry}\n" +
+            spotLabel +
             "OI: ${a.oi.toLong()}  (+${a.oiChangePct}% in ${a.window})\n" +
             "LTP: ${a.ltp}  (${if (a.priceChangePct >= 0) "+" else ""}${a.priceChangePct}%)"
     }

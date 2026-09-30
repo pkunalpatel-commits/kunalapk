@@ -58,7 +58,7 @@ class HistoricalActivity : AppCompatActivity() {
     private fun toAlert(h: HistoricalSpike) = SpikeAlert(
         h.symbol, h.expiry, h.strike, h.type, h.window,
         h.oi, h.oiChangePct, h.ltp, h.priceChangePct, h.ts,
-        h.atmDistance,
+        h.atmDistance, h.spot,
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -259,6 +259,7 @@ class HistoricalActivity : AppCompatActivity() {
                                     candles = HistoricalEngine.resample(candles, factor)
                                 }
                                 val dist = atmDistanceOf(c.strike, spot, allStrikes)
+                                val spotVal = if (!spot.isNaN()) spot else null
                                 val found = HistoricalEngine.findHistoricalSpikes(
                                     candles, symbol, expiry, c.strike, c.type,
                                     intervalMin,
@@ -268,6 +269,7 @@ class HistoricalActivity : AppCompatActivity() {
                                     settings.priceChangePct,
                                     settings.minOi,
                                     dist,
+                                    spotVal,
 )
                                 if (found.isNotEmpty()) {
                                     withContext(Dispatchers.Main) {

@@ -18,6 +18,7 @@ enum class SpikeSort {
     WIN_ASC, WIN_DESC, OI_SIZE_DESC, OI_SIZE_ASC,
     OI_PCT_DESC, OI_PCT_ASC, LTP_DESC, LTP_ASC,
     ATM_DESC, ATM_ASC,
+    SPOT_DESC, SPOT_ASC,
 }
 
 class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
@@ -68,6 +69,8 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
             SpikeSort.LTP_ASC -> raw.sortedBy { it.ltp }
             SpikeSort.ATM_DESC -> raw.sortedByDescending { it.atmDistance ?: Int.MIN_VALUE }
             SpikeSort.ATM_ASC -> raw.sortedBy { it.atmDistance ?: Int.MAX_VALUE }
+            SpikeSort.SPOT_DESC -> raw.sortedByDescending { it.spot ?: Double.NEGATIVE_INFINITY }
+            SpikeSort.SPOT_ASC -> raw.sortedBy { it.spot ?: Double.POSITIVE_INFINITY }
         }
         items.clear()
         items.addAll(sorted)
@@ -95,6 +98,7 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
             0 -> "0"
             else -> if (d > 0) "+$d" else "$d"
         }
+        holder.colSpot.text = a.spot?.let { String.format(Locale.US, "%.1f", it) } ?: "—"
         holder.colOi.text = fullOi(a.oi)
         holder.colOiPct.text = String.format(Locale.US, "%+.0f%%", a.oiChangePct)
         holder.colLtp.text = String.format(Locale.US, "%.0f", a.ltp)
@@ -114,6 +118,7 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
         val colType: TextView = v.findViewById(R.id.colType)
         val colWin: TextView = v.findViewById(R.id.colWin)
         val colAtm: TextView = v.findViewById(R.id.colAtm)
+        val colSpot: TextView = v.findViewById(R.id.colSpot)
         val colOi: TextView = v.findViewById(R.id.colOi)
         val colOiPct: TextView = v.findViewById(R.id.colOiPct)
         val colLtp: TextView = v.findViewById(R.id.colLtp)

@@ -11,8 +11,8 @@ android {
         applicationId = "com.oisspike.detector"
         minSdk = 26
         targetSdk = 34
-        versionCode = 9
-        versionName = "1.6.0"
+        versionCode = 10
+        versionName = "1.6.1"
     }
 
     buildTypes {

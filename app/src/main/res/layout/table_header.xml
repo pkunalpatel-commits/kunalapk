@@ -22,7 +22,9 @@
     <TextView android:id="@+id/hdrWin" android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_weight="0.35" android:text="Win" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" android:gravity="center" />
     <TextView android:id="@+id/hdrAtm" android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="0.45" android:text="ATM" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" android:gravity="center" />
+        android:layout_weight="0.4" android:text="ATM" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" android:gravity="center" />
+    <TextView android:id="@+id/hdrSpot" android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="0.75" android:text="Spot" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" android:gravity="end" />
     <TextView android:id="@+id/hdrOi" android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_weight="1.0" android:text="OI" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" android:gravity="end" />
     <TextView android:id="@+id/hdrOiPct" android:layout_width="0dp" android:layout_height="wrap_content"

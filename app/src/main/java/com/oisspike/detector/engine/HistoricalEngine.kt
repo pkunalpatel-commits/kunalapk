@@ -22,6 +22,7 @@ data class HistoricalSpike(
     val ts: Long,
     val datetime: String,
     val atmDistance: Int? = null,
+    val spot: Double? = null,
 )
 
 object HistoricalEngine {
@@ -41,6 +42,7 @@ object HistoricalEngine {
         pricePct: Float,
         minOi: Float,
         atmDistance: Int? = null,
+        spot: Double? = null,
     ): List<HistoricalSpike> {
         val tsArr = candles.optJSONArray("timestamp") ?: return emptyList()
         val closeArr = candles.optJSONArray("close") ?: return emptyList()
@@ -93,6 +95,7 @@ object HistoricalEngine {
                             ts = ts,
                             datetime = fmt.format(Date(ts * 1000)),
                             atmDistance = atmDistance,
+                            spot = spot,
                         )
                     )
                 }

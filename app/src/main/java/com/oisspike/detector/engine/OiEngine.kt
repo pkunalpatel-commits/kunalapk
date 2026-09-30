@@ -18,6 +18,8 @@ data class SpikeAlert(
     val ts: Long,
     /** Strike steps from ATM: -3,-2,-1,0(ATM),+1,+2,+3. null if unknown. */
     val atmDistance: Int? = null,
+    /** Underlying spot at time of spike (option-chain last_price / historical approx). */
+    val spot: Double? = null,
 )
 
 /** Index distance of [strike] from ATM strike nearest to [spot] among [strikes]. */
@@ -104,6 +106,7 @@ class OiEngine(
         ltp: Double,
         ts: Long = System.currentTimeMillis() / 1000,
         atmDistance: Int? = null,
+        spot: Double? = null,
     ): List<SpikeAlert> {
         val k = key(symbol, expiry, strike, type)
         val hist = history.getOrPut(k) { mutableListOf() }
@@ -135,6 +138,7 @@ class OiEngine(
                             ltp, Math.round(priceChange * 100.0) / 100.0,
                             ts,
                             atmDistance,
+                            spot,
                         )
                     )
                 }
