@@ -9,6 +9,8 @@
     android:paddingRight="2dp"
     android:background="#243044">
 
+    <TextView android:id="@+id/hdrSymbol" android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1.0" android:text="Symbol" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" />
     <TextView android:id="@+id/hdrTime" android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_weight="1.15" android:text="Time" android:textColor="#93C5FD" android:textSize="9sp" android:textStyle="bold" />
     <TextView android:id="@+id/hdrExpiry" android:layout_width="0dp" android:layout_height="wrap_content"

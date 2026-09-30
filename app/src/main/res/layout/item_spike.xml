@@ -10,6 +10,8 @@
     android:background="#1A2332"
     android:layout_marginBottom="1dp">
 
+    <TextView android:id="@+id/colSymbol" android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1.0" android:textColor="#E7ECF3" android:textSize="9sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" />
     <TextView android:id="@+id/colTime" android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_weight="1.15" android:textColor="#86EFAC" android:textSize="9sp" android:maxLines="1" android:ellipsize="end" />
     <TextView android:id="@+id/colExpiry" android:layout_width="0dp" android:layout_height="wrap_content"

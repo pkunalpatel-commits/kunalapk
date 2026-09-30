@@ -79,6 +79,13 @@
         <CheckBox android:id="@+id/chkFin" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:text="FINNIFTY" android:textColor="#E7ECF3" />
 
+        <Button android:id="@+id/inputExtraSymbols" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="Extra F&amp;O symbols (RELIANCE,TCS,CRUDEOIL,...)"
+            android:textColor="#E7ECF3" android:textColorHint="#555" android:inputType="textCapCharacters"
+            android:minLines="2" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Indices + stocks + MCX from list. Comma-separated."
+            android:textColor="#555" android:textSize="11sp" />
         <Button android:id="@+id/btnSave" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Save Settings" />
     </LinearLayout>

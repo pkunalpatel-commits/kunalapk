@@ -211,8 +211,15 @@ class HistoricalActivity : AppCompatActivity() {
                 withContext(Dispatchers.IO) {
                     val client = DhanClient(settings.clientId, settings.accessToken)
                     val (native, factor) = HistoricalEngine.nativeInterval(intervalMin)
-                    val instrument = if (symbol in listOf("NIFTY", "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY", "SENSEX"))
-                        "OPTIDX" else "OPTSTK"
+                    val instrument = when {
+                        info.seg == "IDX_I" -> "OPTIDX"
+                        info.seg == "MCX_COMM" -> "OPTFUT"
+                        else -> "OPTSTK"
+                    }
+                    val histSeg = when (info.seg) {
+                        "MCX_COMM" -> "MCX_COMM"
+                        else -> "NSE_FNO"
+                    }
 
                     for (expiry in expiries) {
                         if (job?.isCancelled == true) break
@@ -233,7 +240,7 @@ class HistoricalActivity : AppCompatActivity() {
                             try {
                                 var candles = client.getIntradayHistorical(
                                     securityId = c.securityId,
-                                    exchangeSegment = "NSE_FNO",
+                                    exchangeSegment = histSeg,
                                     instrument = instrument,
                                     interval = native,
                                     fromDate = from,

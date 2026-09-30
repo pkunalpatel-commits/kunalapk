@@ -107,7 +107,7 @@ class ScanService : Service() {
                         continue
                     }
 
-                    val symbols = settings.symbolsEnabled
+                    val symbols = settings.allEnabledSymbols()
                     for (symbol in symbols) {
                         if (!isRunning) break
                         val info = Defaults.SYMBOLS[symbol] ?: continue

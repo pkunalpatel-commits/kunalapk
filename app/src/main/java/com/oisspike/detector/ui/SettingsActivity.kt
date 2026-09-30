@@ -45,6 +45,7 @@ class SettingsActivity : AppCompatActivity() {
         val chkNifty = findViewById<CheckBox>(R.id.chkNifty)
         val chkBank = findViewById<CheckBox>(R.id.chkBank)
         val chkFin = findViewById<CheckBox>(R.id.chkFin)
+        val extraSym = findViewById<EditText>(R.id.inputExtraSymbols)
 
         clientId.setText(settings.clientId)
         token.setText(settings.accessToken)
@@ -67,6 +68,7 @@ class SettingsActivity : AppCompatActivity() {
         chkNifty.isChecked = "NIFTY" in syms
         chkBank.isChecked = "BANKNIFTY" in syms
         chkFin.isChecked = "FINNIFTY" in syms
+        extraSym.setText(settings.extraSymbols)
 
         findViewById<Button>(R.id.btnSave).setOnClickListener {
             settings.clientId = clientId.text.toString().trim()
@@ -92,6 +94,7 @@ class SettingsActivity : AppCompatActivity() {
             if (chkFin.isChecked) set.add("FINNIFTY")
             if (set.isEmpty()) set.add("NIFTY")
             settings.symbolsEnabled = set
+            settings.extraSymbols = extraSym.text.toString().trim()
             Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show()
         }
 

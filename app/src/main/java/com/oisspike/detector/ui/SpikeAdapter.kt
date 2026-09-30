@@ -80,6 +80,7 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val a = items[position]
+        holder.colSymbol.text = a.symbol
         holder.colTime.text = if (showDate) fmtDate.format(Date(a.ts * 1000))
         else fmtTime.format(Date(a.ts * 1000))
         holder.colExpiry.text = fullExpiry(a.expiry)
@@ -98,6 +99,7 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
     }
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
+        val colSymbol: TextView = v.findViewById(R.id.colSymbol)
         val colTime: TextView = v.findViewById(R.id.colTime)
         val colExpiry: TextView = v.findViewById(R.id.colExpiry)
         val colStrike: TextView = v.findViewById(R.id.colStrike)
