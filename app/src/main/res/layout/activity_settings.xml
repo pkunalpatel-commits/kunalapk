@@ -16,8 +16,27 @@
             android:layout_height="wrap_content" android:hint="Client ID" android:textColor="#E7ECF3"
             android:textColorHint="#555" android:inputType="text" />
         <EditText android:id="@+id/inputToken" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:hint="Access Token" android:textColor="#E7ECF3"
-            android:textColorHint="#555" android:inputType="text" />
+            android:layout_height="wrap_content" android:hint="Access Token (auto-filled by TOTP)" android:textColor="#E7ECF3"
+            android:textColorHint="#555" android:inputType="textMultiLine" android:minLines="2" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:text="Dhan TOTP login (easy token)" android:textColor="#8B9BB4" android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Setup: Dhan Web → Access DhanHQ APIs → Setup TOTP → save secret here"
+            android:textColor="#555" android:textSize="11sp" />
+        <EditText android:id="@+id/inputDhanPin" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="Dhan PIN (6 digit)" android:textColor="#E7ECF3"
+            android:textColorHint="#555" android:inputType="numberPassword" android:maxLength="6" />
+        <EditText android:id="@+id/inputTotpSecret" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="TOTP Secret (Base32 from Dhan QR / key)" android:textColor="#E7ECF3"
+            android:textColorHint="#555" android:inputType="textVisiblePassword" />
+        <EditText android:id="@+id/inputTotpCode" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="Or enter 6-digit TOTP from Authenticator" android:textColor="#E7ECF3"
+            android:textColorHint="#555" android:inputType="number" android:maxLength="6" />
+        <Button android:id="@+id/btnGenerateToken" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="Generate Access Token (TOTP)" />
+        <TextView android:id="@+id/tokenStatus" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textColor="#86EFAC" android:textSize="12sp" />
 
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="12dp" android:text="Telegram" android:textColor="#8B9BB4" android:textStyle="bold" />

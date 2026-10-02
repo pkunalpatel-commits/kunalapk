@@ -18,7 +18,9 @@ import com.oisspike.detector.engine.SpikeAlert
 import com.oisspike.detector.engine.atmDistanceOf
 import com.oisspike.detector.engine.buildLiveWindows
 import com.oisspike.detector.net.DhanApiException
+import com.oisspike.detector.net.DhanAuth
 import com.oisspike.detector.net.DhanClient
+import com.oisspike.detector.net.TotpUtil
 import com.oisspike.detector.net.TelegramClient
 import com.oisspike.detector.ui.MainActivity
 import kotlinx.coroutines.CoroutineScope
@@ -69,7 +71,23 @@ class ScanService : Service() {
         isRunning = true
         notifyState()
         loopJob = scope.launch {
-            val client = DhanClient(settings.clientId, settings.accessToken)
+            // Refresh access token via TOTP if PIN+secret configured
+                if (settings.dhanPin.isNotBlank() && settings.totpSecret.isNotBlank()) {
+                    try {
+                        val code = TotpUtil.generate(settings.totpSecret)
+                        val tr = DhanAuth.generateAccessToken(settings.clientId, settings.dhanPin, code)
+                        if (tr.ok) {
+                            settings.accessToken = tr.accessToken
+                            settings.tokenExpiryHint = tr.expiryTime
+                            appendLog("Token refreshed via TOTP until ${tr.expiryTime}")
+                        } else {
+                            appendLog("TOTP token refresh failed: ${tr.message}")
+                        }
+                    } catch (e: Exception) {
+                        appendLog("TOTP error: ${e.message}")
+                    }
+                }
+                val client = DhanClient(settings.clientId, settings.accessToken)
             val windows = buildLiveWindows(
                 settings.liveCandleIntervalMin,
                 settings.oiSpike1mPct,

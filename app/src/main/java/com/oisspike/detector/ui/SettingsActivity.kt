@@ -4,11 +4,14 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.oisspike.detector.R
 import com.oisspike.detector.data.AppSettings
+import com.oisspike.detector.net.DhanAuth
 import com.oisspike.detector.net.TelegramClient
+import com.oisspike.detector.net.TotpUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,6 +49,10 @@ class SettingsActivity : AppCompatActivity() {
             val chkBank = findViewById<CheckBox>(R.id.chkBank)
             val chkFin = findViewById<CheckBox>(R.id.chkFin)
             val extraSym = findViewById<EditText>(R.id.inputExtraSymbols)
+            val dhanPin = findViewById<EditText>(R.id.inputDhanPin)
+            val totpSecret = findViewById<EditText>(R.id.inputTotpSecret)
+            val totpCode = findViewById<EditText>(R.id.inputTotpCode)
+            val tokenStatus = findViewById<TextView>(R.id.tokenStatus)
 
             clientId.setText(settings.clientId)
             token.setText(settings.accessToken)
@@ -69,11 +76,57 @@ class SettingsActivity : AppCompatActivity() {
             chkBank.isChecked = "BANKNIFTY" in syms
             chkFin.isChecked = "FINNIFTY" in syms
             extraSym.setText(settings.extraSymbols)
+            dhanPin.setText(settings.dhanPin)
+            totpSecret.setText(settings.totpSecret)
+            if (settings.tokenExpiryHint.isNotBlank()) {
+                tokenStatus.text = "Last token: ${settings.tokenExpiryHint}"
+            }
 
             findViewById<Button>(R.id.btnSearchExtra).setOnClickListener {
                 SymbolPicker.show(this, "") { picked ->
                     val cur = extraSym.text.toString().trim()
                     extraSym.setText(if (cur.isEmpty()) picked else "$cur,$picked")
+                }
+            }
+
+            
+            findViewById<Button>(R.id.btnGenerateToken).setOnClickListener {
+                val cid = clientId.text.toString().trim()
+                val pin = dhanPin.text.toString().trim()
+                var totp = totpCode.text.toString().trim()
+                val secret = totpSecret.text.toString().trim().replace(" ", "")
+                settings.dhanPin = pin
+                settings.totpSecret = secret
+                if (totp.isEmpty() && secret.isNotEmpty()) {
+                    try {
+                        totp = TotpUtil.generate(secret)
+                        totpCode.setText(totp)
+                    } catch (e: Exception) {
+                        Toast.makeText(this, "TOTP secret invalid: ${e.message}", Toast.LENGTH_LONG).show()
+                        return@setOnClickListener
+                    }
+                }
+                if (cid.isEmpty() || pin.isEmpty() || totp.isEmpty()) {
+                    Toast.makeText(this, "Need Client ID + PIN + TOTP (or secret)", Toast.LENGTH_LONG).show()
+                    return@setOnClickListener
+                }
+                tokenStatus.text = "Generating token…"
+                CoroutineScope(Dispatchers.Main).launch {
+                    val result = withContext(Dispatchers.IO) {
+                        DhanAuth.generateAccessToken(cid, pin, totp)
+                    }
+                    if (result.ok) {
+                        settings.clientId = result.clientId.ifBlank { cid }
+                        settings.accessToken = result.accessToken
+                        settings.tokenExpiryHint = result.expiryTime
+                        clientId.setText(settings.clientId)
+                        token.setText(result.accessToken)
+                        tokenStatus.text = result.message
+                        Toast.makeText(this@SettingsActivity, "Access token saved", Toast.LENGTH_SHORT).show()
+                    } else {
+                        tokenStatus.text = result.message
+                        Toast.makeText(this@SettingsActivity, result.message, Toast.LENGTH_LONG).show()
+                    }
                 }
             }
 
@@ -102,6 +155,8 @@ class SettingsActivity : AppCompatActivity() {
                 if (set.isEmpty()) set.add("NIFTY")
                 settings.symbolsEnabled = set
                 settings.extraSymbols = extraSym.text.toString().trim()
+                settings.dhanPin = dhanPin.text.toString().trim()
+                settings.totpSecret = totpSecret.text.toString().trim().replace(" ", "")
                 Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show()
             }
 

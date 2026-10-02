@@ -259,6 +259,20 @@ class AppSettings(context: Context) {
         get() = prefs.getString("access_token", "") ?: ""
         set(v) = prefs.edit().putString("access_token", v).apply()
 
+    /** 6-digit Dhan PIN for TOTP token generation */
+    var dhanPin: String
+        get() = prefs.getString("dhan_pin", "") ?: ""
+        set(v) = prefs.edit().putString("dhan_pin", v).apply()
+
+    /** Base32 TOTP secret from Dhan Setup TOTP (Authenticator key) */
+    var totpSecret: String
+        get() = prefs.getString("totp_secret", "") ?: ""
+        set(v) = prefs.edit().putString("totp_secret", v).apply()
+
+    var tokenExpiryHint: String
+        get() = prefs.getString("token_expiry_hint", "") ?: ""
+        set(v) = prefs.edit().putString("token_expiry_hint", v).apply()
+
     var telegramBotToken: String
         get() = prefs.getString("telegram_bot_token", "") ?: ""
         set(v) = prefs.edit().putString("telegram_bot_token", v).apply()
