@@ -1,6 +1,7 @@
 package com.oisspike.detector.net
 
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Request
 import org.json.JSONObject
 import java.net.URLEncoder
@@ -34,7 +35,7 @@ object DhanAuth {
         }
         val url = "$AUTH_URL?dhanClientId=${enc(cid)}&pin=${enc(p)}&totp=${enc(t)}"
         return try {
-            val empty = okhttp3.RequestBody.create(okhttp3.MediaType.parse("application/json"), "")
+            val empty = "".toRequestBody(null)
             val req = Request.Builder().url(url).post(empty).build()
             http.newCall(req).execute().use { resp ->
                 val body = resp.body?.string().orEmpty()
