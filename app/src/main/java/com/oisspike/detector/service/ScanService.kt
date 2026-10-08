@@ -17,6 +17,7 @@ import com.oisspike.detector.engine.OiEngine
 import com.oisspike.detector.engine.SpikeAlert
 import com.oisspike.detector.engine.atmDistanceOf
 import com.oisspike.detector.engine.buildLiveWindows
+import com.oisspike.detector.engine.suggestedPollSec
 import com.oisspike.detector.net.DhanApiException
 import com.oisspike.detector.net.DhanAuth
 import com.oisspike.detector.net.DhanClient
@@ -101,6 +102,13 @@ class ScanService : Service() {
                 settings.minOi.toDouble(),
                 settings.alertCooldownMin * 60L,
             )
+            val pollSec = suggestedPollSec(settings.liveCandleIntervalMin, settings.pollIntervalSec)
+            appendLog(
+                "Live mode: candle=${settings.liveCandleIntervalMin}m  poll≈${pollSec}s  " +
+                    "windows=" + windows.joinToString { "${it.label}≥${it.oiThreshold}%" } +
+                    "  price≥${settings.priceChangePct}%  minOI=${settings.minOi.toLong()}"
+            )
+            appendLog("Warm-up: need ~1 full candle interval of samples before 1m alerts (same as historical bars).")
             appendLog("Scanner started. Windows: ${windows.joinToString { it.label }}")
 
             while (isActive && isRunning) {
@@ -158,8 +166,9 @@ class ScanService : Service() {
                 } catch (e: Exception) {
                     appendLog("Sweep error: ${e.message}")
                 }
-                val wait = settings.pollIntervalSec.coerceAtLeast(5) * 1000L
-                delay(wait)
+                val waitSec = suggestedPollSec(settings.liveCandleIntervalMin, settings.pollIntervalSec)
+                appendLog("Next sweep in ${waitSec}s (candle=${settings.liveCandleIntervalMin}m, poll setting=${settings.pollIntervalSec}s)")
+                delay(waitSec * 1000L)
             }
             appendLog("Scanner stopped")
             isRunning = false
