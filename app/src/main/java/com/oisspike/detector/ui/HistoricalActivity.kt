@@ -285,6 +285,7 @@ class HistoricalActivity : AppCompatActivity() {
                                     spotVal,
                                     includeStandardWindows = settings.includeStandardWindows,
                                     cooldownMin = settings.alertCooldownMin,
+                                    minLtp = settings.minLtp,
 )
                                 if (found.isNotEmpty()) {
                                     withContext(Dispatchers.Main) {
