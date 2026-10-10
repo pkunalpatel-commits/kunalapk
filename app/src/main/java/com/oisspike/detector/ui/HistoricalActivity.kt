@@ -208,7 +208,20 @@ class HistoricalActivity : AppCompatActivity() {
         adapter.submit(emptyList())
         hideOptionsForResults()  // free screen for results
         statusText.text = "Scanning…"
-        appendLog("Historical scan $symbol  expiries=${expiries.joinToString()}  $from → $to  ${intervalMin}m")
+        val histWindows = com.oisspike.detector.engine.buildLiveWindows(
+            intervalMin,
+            settings.oiSpike1mPct,
+            settings.oiSpike5mPct,
+            settings.oiSpike10mPct,
+            settings.includeStandardWindows,
+        )
+        appendLog(
+            "Historical scan $symbol  ${intervalMin}m  " +
+                histWindows.joinToString { "${it.label}≥${it.oiThreshold}%" } +
+                "  price≥${settings.priceChangePct}%  minOI=${settings.minOi.toLong()}  " +
+                "cooldown=${settings.alertCooldownMin}m  $from → $to"
+        )
+        appendLog("Expiries: ${expiries.joinToString()}")
 
         job = CoroutineScope(Dispatchers.Main).launch {
             val results = mutableListOf<SpikeAlert>()
@@ -270,6 +283,8 @@ class HistoricalActivity : AppCompatActivity() {
                                     settings.minOi,
                                     dist,
                                     spotVal,
+                                    includeStandardWindows = settings.includeStandardWindows,
+                                    cooldownMin = settings.alertCooldownMin,
 )
                                 if (found.isNotEmpty()) {
                                     withContext(Dispatchers.Main) {

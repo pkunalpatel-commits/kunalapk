@@ -25,6 +25,14 @@ data class HistoricalSpike(
     val spot: Double? = null,
 )
 
+/**
+ * Historical scan uses the **same rules as live** [OiEngine]:
+ * - Windows from [buildLiveWindows] (primary candle + optional 1m/5m/10m)
+ * - Thresholds via [thresholdForInterval]
+ * - OI % and |price %| filters
+ * - Previous-bar / lookback matching (0.7–1.6× window, min age 0.5× window)
+ * - Cooldown between alerts per contract+window
+ */
 object HistoricalEngine {
 
     private val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
@@ -43,65 +51,110 @@ object HistoricalEngine {
         minOi: Float,
         atmDistance: Int? = null,
         spot: Double? = null,
+        includeStandardWindows: Boolean = true,
+        cooldownMin: Int = 10,
     ): List<HistoricalSpike> {
         val tsArr = candles.optJSONArray("timestamp") ?: return emptyList()
         val closeArr = candles.optJSONArray("close") ?: return emptyList()
         val oiArr = candles.optJSONArray("open_interest") ?: return emptyList()
         val n = minOf(tsArr.length(), closeArr.length(), oiArr.length())
-        if (n == 0) return emptyList()
+        if (n < 2) return emptyList()
 
-        val step1 = max(1, (1.0 / intervalMin).roundToInt())
-        val step5 = max(1, (5.0 / intervalMin).roundToInt())
-        val step10 = max(1, (10.0 / intervalMin).roundToInt())
-        val cooldown = max(1, (10.0 / intervalMin).roundToInt())
+        val candle = intervalMin.coerceAtLeast(1)
+        val windows = buildLiveWindows(
+            candleIntervalMin = candle,
+            oi1 = oi1mPct,
+            oi5 = oi5mPct,
+            oi10 = oi10mPct,
+            includeStandard = includeStandardWindows,
+        )
+        val cooldownSec = (cooldownMin.coerceAtLeast(1) * 60).toLong()
+        val priceTh = pricePct.toDouble()
+        val minOiD = minOi.toDouble()
 
-        val lastIdx = mutableMapOf("1m" to -10000, "5m" to -10000, "10m" to -10000)
+        // last alert time (unix sec) per window label
+        val lastAlert = mutableMapOf<String, Long>()
         val alerts = mutableListOf<HistoricalSpike>()
 
-        for (i in 0 until n) {
+        for (i in 1 until n) {
             val oi = oiArr.optDouble(i, 0.0)
             val ltp = closeArr.optDouble(i, 0.0)
-            if (oi < minOi) continue
+            val ts = tsArr.optLong(i)
+            if (oi < minOiD) continue
 
-            for ((label, step, threshold) in listOf(
-                Triple("1m", step1, oi1mPct.toDouble()),
-                Triple("5m", step5, oi5mPct.toDouble()),
-                Triple("10m", step10, oi10mPct.toDouble()),
-            )) {
-                val pastIdx = i - step
-                if (pastIdx < 0) continue
+            for (w in windows) {
+                val pastIdx = findPastBarIndex(tsArr, i, ts, w.windowSec) ?: continue
                 val pastOi = oiArr.optDouble(pastIdx, 0.0)
                 val pastLtp = closeArr.optDouble(pastIdx, 0.0)
                 if (pastOi <= 0) continue
 
+                val age = ts - tsArr.optLong(pastIdx)
+                if (age < (w.windowSec * 0.5).toLong()) continue
+
                 val oiChange = (oi - pastOi) / pastOi * 100.0
                 val priceChange = if (pastLtp != 0.0) (ltp - pastLtp) / pastLtp * 100.0 else 0.0
-                if (oiChange >= threshold && abs(priceChange) >= pricePct) {
-                    val last = lastIdx[label] ?: -10000
-                    if (i - last < cooldown) continue
-                    lastIdx[label] = i
-                    val ts = tsArr.optLong(i)
-                    alerts.add(
-                        HistoricalSpike(
-                            symbol = symbol,
-                            expiry = expiry,
-                            strike = strike,
-                            type = optType,
-                            window = label,
-                            oi = oi,
-                            oiChangePct = Math.round(oiChange * 100.0) / 100.0,
-                            ltp = ltp,
-                            priceChangePct = Math.round(priceChange * 100.0) / 100.0,
-                            ts = ts,
-                            datetime = fmt.format(Date(ts * 1000)),
-                            atmDistance = atmDistance,
-                            spot = spot,
-                        )
+                if (oiChange < w.oiThreshold || abs(priceChange) < priceTh) continue
+
+                val last = lastAlert[w.label] ?: 0L
+                if (ts - last < cooldownSec) continue
+                lastAlert[w.label] = ts
+
+                alerts.add(
+                    HistoricalSpike(
+                        symbol = symbol,
+                        expiry = expiry,
+                        strike = strike,
+                        type = optType,
+                        window = w.label,
+                        oi = oi,
+                        oiChangePct = Math.round(oiChange * 100.0) / 100.0,
+                        ltp = ltp,
+                        priceChangePct = Math.round(priceChange * 100.0) / 100.0,
+                        ts = ts,
+                        datetime = fmt.format(Date(ts * 1000)),
+                        atmDistance = atmDistance,
+                        spot = spot,
                     )
-                }
+                )
             }
         }
         return alerts
+    }
+
+    /**
+     * Same idea as [OiEngine] findPastForWindow on a candle series:
+     * prefer previous bar if age ≈ window; else bar at/before (now - windowSec).
+     */
+    private fun findPastBarIndex(
+        tsArr: JSONArray,
+        currentIdx: Int,
+        now: Long,
+        windowSec: Long,
+    ): Int? {
+        if (currentIdx < 1) return null
+        val prevIdx = currentIdx - 1
+        val prevTs = tsArr.optLong(prevIdx)
+        val age = now - prevTs
+        if (age >= (windowSec * 0.7).toLong() && age <= (windowSec * 1.6).toLong()) {
+            return prevIdx
+        }
+        val target = now - windowSec
+        // binary search for last index with ts <= target among 0..currentIdx-1
+        var lo = 0
+        var hi = currentIdx - 1
+        var best = -1
+        while (lo <= hi) {
+            val mid = (lo + hi) / 2
+            if (tsArr.optLong(mid) <= target) {
+                best = mid
+                lo = mid + 1
+            } else {
+                hi = mid - 1
+            }
+        }
+        if (best >= 0) return best
+        // warm-up: allow previous bar if at least 70% of window old
+        return if (age >= (windowSec * 0.7).toLong()) prevIdx else null
     }
 
     /** Native Dhan interval for a UI candle size; factor for resampling if needed. */
