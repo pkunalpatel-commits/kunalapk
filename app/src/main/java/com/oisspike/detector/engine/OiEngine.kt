@@ -168,35 +168,47 @@ class OiEngine(
     }
 
     /**
-     * Historical 1m: compare bar[i] to bar[i-1] (previous candle).
-     * Live: prefer previous snapshot if age ≈ window; else snapshot at/before (now - window).
+     * Same rules as v1.7.3 / commit 7de1564:
+     * - Prefer sample at or before (now - windowSec)  [classic lookback]
+     * - Else previous sample if age ≈ 0.7–1.6× window  [sparse / warm-up]
+     * Dense live polls (e.g. every 20s for 1m) must use classic lookback first;
+     * checking "prev sample age ≈ window" first prevented alerts when poll << window.
      */
     private fun findPastForWindow(hist: List<Snapshot>, now: Long, windowSec: Long): Snapshot? {
         if (hist.size < 2) return null
+        val target = now - windowSec
+        val minAge = (windowSec * 0.5).toLong()
+
+        // 1) Classic lookback — required for dense live sampling
+        if (hist.first().ts <= target) {
+            var lo = 0
+            var hi = hist.size - 1
+            var best = -1
+            while (lo <= hi) {
+                val mid = (lo + hi) / 2
+                if (hist[mid].ts <= target) {
+                    best = mid
+                    lo = mid + 1
+                } else {
+                    hi = mid - 1
+                }
+            }
+            if (best >= 0) {
+                val s = hist[best]
+                if (now - s.ts >= minAge) return s
+            }
+        }
+
+        // 2) Previous sample as candle proxy (sparse polls / warm-up) — 7de1564
         val prev = hist[hist.size - 2]
         val age = now - prev.ts
-        // Previous sample acts like previous candle when spacing is close to window
         if (age >= (windowSec * 0.7).toLong() && age <= (windowSec * 1.6).toLong()) {
             return prev
         }
-        // Classic lookback to (now - windowSec)
-        val target = now - windowSec
-        if (hist.first().ts > target) {
-            // Not enough history yet — still allow prev if old enough (≥70% of window)
-            return if (age >= (windowSec * 0.7).toLong()) prev else null
+        if (hist.first().ts > target && age >= (windowSec * 0.7).toLong()) {
+            return prev
         }
-        var lo = 0
-        var hi = hist.size - 1
-        var best = -1
-        while (lo <= hi) {
-            val mid = (lo + hi) / 2
-            if (hist[mid].ts <= target) {
-                best = mid
-                lo = mid + 1
-            } else {
-                hi = mid - 1
-            }
-        }
-        return if (best >= 0) hist[best] else null
+        return null
     }
 }
+
