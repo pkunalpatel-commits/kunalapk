@@ -216,11 +216,12 @@ class HistoricalActivity : AppCompatActivity() {
             settings.includeStandardWindows,
         )
         appendLog(
-            "Historical scan $symbol  ${intervalMin}m  " +
+            "Historical scan $symbol  candle=${intervalMin}m (bar-step)  " +
                 histWindows.joinToString { "${it.label}≥${it.oiThreshold}%" } +
                 "  price≥${settings.priceChangePct}%  minOI=${settings.minOi.toLong()}  " +
                 "cooldown=${settings.alertCooldownMin}m  $from → $to"
         )
+        appendLog("1m window = previous ${intervalMin}m bar; same OI%/price% as live Settings.")
         appendLog("Expiries: ${expiries.joinToString()}")
 
         job = CoroutineScope(Dispatchers.Main).launch {

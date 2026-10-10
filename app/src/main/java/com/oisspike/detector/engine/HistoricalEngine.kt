@@ -5,6 +5,9 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 data class HistoricalSpike(
     val symbol: String,
@@ -23,14 +26,20 @@ data class HistoricalSpike(
 )
 
 /**
- * Historical spikes by **replaying candles through the same [OiEngine] as live**.
- * Same windows, thresholds, lookback, price filter, min OI, and cooldown.
+ * Historical **candle** scan (matches desktop + live thresholds).
+ *
+ * For a chosen candle size (e.g. 1m), each window looks back an exact number
+ * of bars:
+ *   1m window on 1m candles → previous bar
+ *   5m window on 1m candles → 5 bars back
+ *   10m window on 1m candles → 10 bars back
+ *
+ * Thresholds / which windows come from [buildLiveWindows] (same as live Settings).
  */
 object HistoricalEngine {
 
     private val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
 
-    /** Normalize Dhan chart timestamps to unix seconds. */
     fun toUnixSec(ts: Long): Long =
         if (ts > 10_000_000_000L) ts / 1000L else ts
 
@@ -54,64 +63,80 @@ object HistoricalEngine {
     ): List<HistoricalSpike> {
         val tsArr = candles.optJSONArray("timestamp") ?: return emptyList()
         val closeArr = candles.optJSONArray("close") ?: return emptyList()
-        val oiArr = candles.optJSONArray("open_interest") ?: return emptyList()
+        val oiArr = resolveOiArray(candles) ?: return emptyList()
         val n = minOf(tsArr.length(), closeArr.length(), oiArr.length())
         if (n < 2) return emptyList()
 
+        val candle = intervalMin.coerceAtLeast(1)
         val windows = buildLiveWindows(
-            candleIntervalMin = intervalMin.coerceAtLeast(1),
+            candleIntervalMin = candle,
             oi1 = oi1mPct,
             oi5 = oi5mPct,
             oi10 = oi10mPct,
             includeStandard = includeStandardWindows,
         )
-        val engine = OiEngine(
-            windows = windows,
-            pricePct = pricePct.toDouble(),
-            minOi = minOi.toDouble(),
-            cooldownSec = cooldownMin.coerceAtLeast(1) * 60L,
-        )
+        // Cooldown in number of candles (~ cooldownMin minutes)
+        val cooldownBars = max(1, (cooldownMin.coerceAtLeast(1).toDouble() / candle).roundToInt())
+        val priceTh = pricePct.toDouble()
+        val minOiD = minOi.toDouble()
 
-        val out = mutableListOf<HistoricalSpike>()
+        val lastAlertBar = mutableMapOf<String, Int>()
+        val alerts = mutableListOf<HistoricalSpike>()
+
         for (i in 0 until n) {
             val oi = oiArr.optDouble(i, 0.0)
             val ltp = closeArr.optDouble(i, 0.0)
             val tsSec = toUnixSec(tsArr.optLong(i))
-            if (oi <= 0) continue
+            if (oi < minOiD) continue
             if (minLtp > 0f && ltp < minLtp) continue
 
-            val alerts = engine.ingest(
-                symbol = symbol,
-                expiry = expiry,
-                strike = strike,
-                type = optType,
-                oi = oi,
-                ltp = ltp,
-                ts = tsSec,
-                atmDistance = atmDistance,
-                spot = spot,
-            )
-            for (a in alerts) {
-                out.add(
+            for (w in windows) {
+                // Exact bar steps: window minutes / candle minutes
+                val windowMin = max(1, (w.windowSec / 60L).toInt())
+                val step = max(1, (windowMin.toDouble() / candle).roundToInt())
+                val pastIdx = i - step
+                if (pastIdx < 0) continue
+
+                val pastOi = oiArr.optDouble(pastIdx, 0.0)
+                val pastLtp = closeArr.optDouble(pastIdx, 0.0)
+                if (pastOi <= 0) continue
+
+                val oiChange = (oi - pastOi) / pastOi * 100.0
+                val priceChange = if (pastLtp != 0.0) (ltp - pastLtp) / pastLtp * 100.0 else 0.0
+                if (oiChange < w.oiThreshold || abs(priceChange) < priceTh) continue
+
+                val last = lastAlertBar[w.label] ?: -1_000_000
+                if (i - last < cooldownBars) continue
+                lastAlertBar[w.label] = i
+
+                alerts.add(
                     HistoricalSpike(
-                        symbol = a.symbol,
-                        expiry = a.expiry,
-                        strike = a.strike,
-                        type = a.type,
-                        window = a.window,
-                        oi = a.oi,
-                        oiChangePct = a.oiChangePct,
-                        ltp = a.ltp,
-                        priceChangePct = a.priceChangePct,
-                        ts = a.ts,
-                        datetime = fmt.format(Date(a.ts * 1000)),
-                        atmDistance = a.atmDistance,
-                        spot = a.spot,
+                        symbol = symbol,
+                        expiry = expiry,
+                        strike = strike,
+                        type = optType,
+                        window = w.label,
+                        oi = oi,
+                        oiChangePct = Math.round(oiChange * 100.0) / 100.0,
+                        ltp = ltp,
+                        priceChangePct = Math.round(priceChange * 100.0) / 100.0,
+                        ts = tsSec,
+                        datetime = fmt.format(Date(tsSec * 1000)),
+                        atmDistance = atmDistance,
+                        spot = spot,
                     )
                 )
             }
         }
-        return out
+        return alerts
+    }
+
+    /** Dhan may return open_interest or openInterest. */
+    private fun resolveOiArray(candles: JSONObject): JSONArray? {
+        candles.optJSONArray("open_interest")?.let { return it }
+        candles.optJSONArray("openInterest")?.let { return it }
+        candles.optJSONArray("oi")?.let { return it }
+        return null
     }
 
     fun nativeInterval(uiMinutes: Int): Pair<String, Int> {
@@ -129,7 +154,7 @@ object HistoricalEngine {
         if (factor <= 1) return candles
         val ts = candles.optJSONArray("timestamp") ?: return candles
         val close = candles.optJSONArray("close") ?: return candles
-        val oi = candles.optJSONArray("open_interest") ?: return candles
+        val oi = resolveOiArray(candles) ?: return candles
         val n = minOf(ts.length(), close.length(), oi.length())
         val outTs = JSONArray()
         val outClose = JSONArray()
