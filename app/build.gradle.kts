@@ -11,8 +11,8 @@ android {
         applicationId = "com.oisspike.detector"
         minSdk = 26
         targetSdk = 34
-        versionCode = 17
-        versionName = "1.7.6"
+        versionCode = 18
+        versionName = "1.7.7"
     }
 
     buildTypes {
@@ -53,3 +53,4 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.json:json:20240303")
 }
+
