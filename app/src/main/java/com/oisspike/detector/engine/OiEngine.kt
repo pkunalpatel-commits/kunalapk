@@ -70,18 +70,14 @@ fun buildLiveWindows(
  */
 fun suggestedPollSec(candleIntervalMin: Int, userPollSec: Int): Int {
     val candle = candleIntervalMin.coerceAtLeast(1)
-    // Sample ~3x per candle window (historical uses every bar)
-    // Match historical candle spacing: 1m candles → sample ~every 60s
+    // Live only: denser polls for short candles (do not change for historical)
     val ideal = when {
-        candle <= 1 -> 60
-        candle <= 3 -> 60
-        candle <= 5 -> 60
-        candle <= 15 -> 90
-        else -> 120
+        candle <= 1 -> 20
+        candle <= 3 -> 30
+        candle <= 5 -> 45
+        else -> 60
     }
-    // Prefer denser of user poll vs ideal, but for 1m never slower than 60s
-    val base = minOf(userPollSec.coerceAtLeast(5), ideal).coerceAtLeast(5)
-    return if (candle <= 1) maxOf(base, 45) else base  // 1m: at least ~45–60s between sweeps
+    return minOf(userPollSec.coerceAtLeast(5), ideal).coerceAtLeast(5)
 }
 
 class OiEngine(
