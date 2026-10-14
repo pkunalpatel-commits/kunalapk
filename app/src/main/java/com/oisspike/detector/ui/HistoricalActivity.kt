@@ -58,8 +58,13 @@ class HistoricalActivity : AppCompatActivity() {
     private fun toAlert(h: HistoricalSpike) = SpikeAlert(
         h.symbol, h.expiry, h.strike, h.type, h.window,
         h.oi, h.oiChangePct, h.ltp, h.priceChangePct, h.ts,
-        h.atmDistance, h.spot,
+        h.atmDistance, h.spot, h.oiDelta, h.amountIncrease,
     )
+
+    private fun passesAmountFilter(h: HistoricalSpike): Boolean {
+        val minA = settings.minAmountInr.toDouble()
+        return minA <= 0.0 || h.amountIncrease >= minA
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -288,11 +293,12 @@ class HistoricalActivity : AppCompatActivity() {
                                     cooldownMin = settings.alertCooldownMin,
                                     minLtp = settings.minLtp,
 )
-                                if (found.isNotEmpty()) {
+                                val filtered = found.filter { passesAmountFilter(it) }
+                                if (filtered.isNotEmpty()) {
                                     withContext(Dispatchers.Main) {
                                         appendLog("  ${c.strike} ${c.type}: ${found.size} spike(s)")
                                     }
-                                    results.addAll(found.map { toAlert(it) })
+                                    results.addAll(filtered.map { toAlert(it) })
                                 }
                             } catch (e: DhanApiException) {
                                 withContext(Dispatchers.Main) {

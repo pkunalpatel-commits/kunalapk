@@ -317,6 +317,26 @@ class AppSettings(context: Context) {
         get() = prefs.getFloat("min_ltp", 5f)
         set(v) = prefs.edit().putFloat("min_ltp", v).apply()
 
+    /** Min amount increase (₹) = ΔOI × LTP. 0 = disabled. */
+    var minAmountInr: Float
+        get() = prefs.getFloat("min_amount_inr", 0f)
+        set(v) = prefs.edit().putFloat("min_amount_inr", v).apply()
+
+    fun isColVisible(key: String): Boolean = prefs.getBoolean("col_vis_$key", true)
+    fun setColVisible(key: String, visible: Boolean) =
+        prefs.edit().putBoolean("col_vis_$key", visible).apply()
+
+    fun resetColumnVisibility() {
+        prefs.edit()
+            .putBoolean("col_vis_time", true)
+            .putBoolean("col_vis_expiry", true)
+            .putBoolean("col_vis_win", true)
+            .putBoolean("col_vis_oi", true)
+            .putBoolean("col_vis_ltp", true)
+            .putBoolean("col_vis_amt", true)
+            .apply()
+    }
+
     var alertCooldownMin: Int
         get() = prefs.getInt("alert_cooldown_min", 10)
         set(v) = prefs.edit().putInt("alert_cooldown_min", v).apply()

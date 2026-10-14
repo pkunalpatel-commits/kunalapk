@@ -77,6 +77,11 @@
             android:layout_height="wrap_content" android:hint="Min LTP (skip cheaper options, 0=off)"
             android:inputType="numberDecimal"
             android:textColor="#E7ECF3" android:textColorHint="#555" />
+        <EditText android:id="@+id/inputMinAmount" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="Min amount ↑ ₹ (ΔOI×LTP, 0=off)" android:textColor="#E7ECF3"
+            android:textColorHint="#555" android:inputType="numberDecimal" />
+        <Button android:id="@+id/btnResetColumns" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="Reset result columns (show all)" />
         <EditText android:id="@+id/inputCooldown" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:hint="Alert cooldown (min)" android:inputType="number"
             android:textColor="#E7ECF3" android:textColorHint="#555" />

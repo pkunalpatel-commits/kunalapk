@@ -15,6 +15,7 @@ import com.oisspike.detector.data.AppSettings
 import com.oisspike.detector.data.Defaults
 import com.oisspike.detector.engine.OiEngine
 import com.oisspike.detector.engine.SpikeAlert
+import com.oisspike.detector.engine.formatInr
 import com.oisspike.detector.engine.atmDistanceOf
 import com.oisspike.detector.engine.buildLiveWindows
 import com.oisspike.detector.engine.suggestedPollSec
@@ -219,10 +220,12 @@ class ScanService : Service() {
     }
 
     private fun onSpike(a: SpikeAlert) {
+        val minA = settings.minAmountInr.toDouble()
+        if (minA > 0 && a.amountIncrease < minA) return
         recentSpikes.add(0, a)
         while (recentSpikes.size > 200) recentSpikes.removeAt(recentSpikes.size - 1)
         val msg = formatAlert(a)
-        appendLog("SPIKE ${a.window} ${a.symbol} ${a.strike} ${a.type} OI +${a.oiChangePct}%")
+        appendLog("SPIKE ${a.window} ${a.symbol} ${a.strike} ${a.type} OI +${a.oiChangePct}% Amt↑ ${formatInr(a.amountIncrease)}")
         notifyState()
         showSpikeNotification(a)
         if (settings.enableTelegram) {

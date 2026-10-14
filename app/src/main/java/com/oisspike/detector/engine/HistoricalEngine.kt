@@ -23,6 +23,8 @@ data class HistoricalSpike(
     val datetime: String,
     val atmDistance: Int? = null,
     val spot: Double? = null,
+    val oiDelta: Double = 0.0,
+    val amountIncrease: Double = 0.0,
 )
 
 /**
@@ -124,6 +126,8 @@ object HistoricalEngine {
                         datetime = fmt.format(Date(tsSec * 1000)),
                         atmDistance = atmDistance,
                         spot = spot,
+                        oiDelta = oi - pastOi,
+                        amountIncrease = (oi - pastOi) * ltp,
                     )
                 )
             }

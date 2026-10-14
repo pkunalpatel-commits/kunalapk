@@ -26,6 +26,8 @@
         android:layout_weight="1.0" android:textColor="#8B9BB4" android:textSize="9sp" android:gravity="end" android:maxLines="1" />
     <TextView android:id="@+id/colOiPct" android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_weight="0.7" android:textColor="#86EFAC" android:textSize="9sp" android:gravity="end" android:maxLines="1" />
+    <TextView android:id="@+id/colAmt" android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="0.7" android:textColor="#FDE68A" android:textSize="9sp" android:gravity="end" android:maxLines="1" />
     <TextView android:id="@+id/colLtp" android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_weight="0.65" android:textColor="#8B9BB4" android:textSize="9sp" android:gravity="end" android:maxLines="1" />
+        android:layout_weight="0.55" android:textColor="#8B9BB4" android:textSize="9sp" android:gravity="end" android:maxLines="1" />
 </LinearLayout>

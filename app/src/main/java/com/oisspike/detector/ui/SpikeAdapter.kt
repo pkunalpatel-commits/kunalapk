@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.oisspike.detector.R
 import com.oisspike.detector.engine.SpikeAlert
+import com.oisspike.detector.engine.formatInr
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -17,6 +18,7 @@ enum class SpikeSort {
     STRIKE_DESC, STRIKE_ASC, TYPE_ASC, TYPE_DESC,
     WIN_ASC, WIN_DESC, OI_SIZE_DESC, OI_SIZE_ASC,
     OI_PCT_DESC, OI_PCT_ASC, LTP_DESC, LTP_ASC,
+    AMT_DESC, AMT_ASC,
 }
 
 class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
@@ -26,6 +28,25 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
     private val fmtTime = SimpleDateFormat("HH:mm", Locale.getDefault())
     private val fmtDate = SimpleDateFormat("MM-dd HH:mm", Locale.getDefault())
     var showDate: Boolean = false
+    var visTime = true
+    var visExpiry = true
+    var visWin = true
+    var visOi = true
+    var visLtp = true
+    var visAmt = true
+
+    fun applyVisibility(
+        time: Boolean, expiry: Boolean, win: Boolean,
+        oi: Boolean, ltp: Boolean, amt: Boolean,
+    ) {
+        visTime = time
+        visExpiry = expiry
+        visWin = win
+        visOi = oi
+        visLtp = ltp
+        visAmt = amt
+        notifyDataSetChanged()
+    }
 
     fun submit(list: List<SpikeAlert>) {
         raw.clear()
@@ -40,12 +61,8 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
 
     fun currentSort(): SpikeSort = sort
 
-    /** Full expiry e.g. 2026-10-19 (no short form). */
     private fun fullExpiry(exp: String): String = exp.trim()
-
-    /** Full OI integer with thousand separators, e.g. 694,460 */
-    private fun fullOi(oi: Double): String =
-        String.format(Locale.US, "%,d", oi.toLong())
+    private fun fullOi(oi: Double): String = String.format(Locale.US, "%,d", oi.toLong())
 
     private fun applySort() {
         val sorted = when (sort) {
@@ -65,6 +82,8 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
             SpikeSort.OI_PCT_ASC -> raw.sortedBy { it.oiChangePct }
             SpikeSort.LTP_DESC -> raw.sortedByDescending { it.ltp }
             SpikeSort.LTP_ASC -> raw.sortedBy { it.ltp }
+            SpikeSort.AMT_DESC -> raw.sortedByDescending { it.amountIncrease }
+            SpikeSort.AMT_ASC -> raw.sortedBy { it.amountIncrease }
         }
         items.clear()
         items.addAll(sorted)
@@ -78,18 +97,27 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
 
     override fun getItemCount() = items.size
 
+    private fun setCol(tv: TextView, visible: Boolean, text: String) {
+        if (visible) {
+            tv.visibility = View.VISIBLE
+            tv.text = text
+        } else {
+            tv.visibility = View.GONE
+        }
+    }
+
     override fun onBindViewHolder(holder: VH, position: Int) {
         val a = items[position]
         holder.colSymbol.text = a.symbol
-        holder.colTime.text = if (showDate) fmtDate.format(Date(a.ts * 1000))
-        else fmtTime.format(Date(a.ts * 1000))
-        holder.colExpiry.text = fullExpiry(a.expiry)
+        setCol(holder.colTime, visTime, if (showDate) fmtDate.format(Date(a.ts * 1000)) else fmtTime.format(Date(a.ts * 1000)))
+        setCol(holder.colExpiry, visExpiry, fullExpiry(a.expiry))
         holder.colStrike.text = a.strike.toInt().toString()
         holder.colType.text = a.type
-        holder.colWin.text = a.window
-        holder.colOi.text = fullOi(a.oi)
+        setCol(holder.colWin, visWin, a.window)
+        setCol(holder.colOi, visOi, fullOi(a.oi))
         holder.colOiPct.text = String.format(Locale.US, "%+.0f%%", a.oiChangePct)
-        holder.colLtp.text = String.format(Locale.US, "%.0f", a.ltp)
+        setCol(holder.colAmt, visAmt, formatInr(a.amountIncrease))
+        setCol(holder.colLtp, visLtp, String.format(Locale.US, "%.0f", a.ltp))
         val c = if (a.oiChangePct >= 0) Color.parseColor("#86EFAC") else Color.parseColor("#FCA5A5")
         holder.colOiPct.setTextColor(c)
         holder.colTime.setTextColor(c)
@@ -107,6 +135,7 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
         val colWin: TextView = v.findViewById(R.id.colWin)
         val colOi: TextView = v.findViewById(R.id.colOi)
         val colOiPct: TextView = v.findViewById(R.id.colOiPct)
+        val colAmt: TextView = v.findViewById(R.id.colAmt)
         val colLtp: TextView = v.findViewById(R.id.colLtp)
     }
 }

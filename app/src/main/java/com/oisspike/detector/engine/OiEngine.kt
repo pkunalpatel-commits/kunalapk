@@ -18,7 +18,20 @@ data class SpikeAlert(
     val ts: Long,
     val atmDistance: Int? = null,
     val spot: Double? = null,
+    val oiDelta: Double = 0.0,
+    val amountIncrease: Double = 0.0,
 )
+
+fun formatInr(amount: Double): String {
+    val a = kotlin.math.abs(amount)
+    val sign = if (amount < 0) "-" else ""
+    return when {
+        a >= 10_000_000 -> String.format(java.util.Locale.US, "%s%.2fCr", sign, a / 10_000_000.0)
+        a >= 100_000 -> String.format(java.util.Locale.US, "%s%.1fL", sign, a / 100_000.0)
+        a >= 1_000 -> String.format(java.util.Locale.US, "%s%.0fK", sign, a / 1_000.0)
+        else -> String.format(java.util.Locale.US, "%s%.0f", sign, a)
+    }
+}
 
 fun atmDistanceOf(strike: Double, spot: Double, strikes: List<Double>): Int? {
     if (strikes.isEmpty() || spot.isNaN()) return null
@@ -151,6 +164,7 @@ class OiEngine(
                 val last = map[w.label] ?: 0L
                 if (ts - last >= cooldownSec) {
                     map[w.label] = ts
+                    val delta = oi - past.oi
                     alerts.add(
                         SpikeAlert(
                             symbol, expiry, strike, type, w.label,
@@ -159,6 +173,8 @@ class OiEngine(
                             ts,
                             atmDistance,
                             spot,
+                            oiDelta = delta,
+                            amountIncrease = delta * ltp,
                         )
                     )
                 }

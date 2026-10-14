@@ -40,6 +40,7 @@ class SettingsActivity : AppCompatActivity() {
             val price = findViewById<EditText>(R.id.inputPrice)
             val minOi = findViewById<EditText>(R.id.inputMinOi)
             val minLtp = findViewById<EditText>(R.id.inputMinLtp)
+            val minAmount = findViewById<EditText>(R.id.inputMinAmount)
             val cooldown = findViewById<EditText>(R.id.inputCooldown)
             val atm = findViewById<EditText>(R.id.inputAtm)
             val chkTelegram = findViewById<CheckBox>(R.id.chkTelegram)
@@ -66,6 +67,7 @@ class SettingsActivity : AppCompatActivity() {
             price.setText(settings.priceChangePct.toString())
             minOi.setText(settings.minOi.toLong().toString())
             minLtp.setText(settings.minLtp.toString())
+            minAmount.setText(if (settings.minAmountInr > 0f) settings.minAmountInr.toLong().toString() else "0")
             cooldown.setText(settings.alertCooldownMin.toString())
             atm.setText(settings.atmRangeStrikes.toString())
             chkTelegram.isChecked = settings.enableTelegram
@@ -130,6 +132,11 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
 
+            findViewById<Button>(R.id.btnResetColumns)?.setOnClickListener {
+                settings.resetColumnVisibility()
+                Toast.makeText(this, "All result columns visible", Toast.LENGTH_SHORT).show()
+            }
+
             findViewById<Button>(R.id.btnSave).setOnClickListener {
                 settings.clientId = clientId.text.toString().trim()
                 settings.accessToken = token.text.toString().trim()
@@ -143,6 +150,7 @@ class SettingsActivity : AppCompatActivity() {
                 settings.priceChangePct = price.text.toString().toFloatOrNull() ?: 1f
                 settings.minOi = minOi.text.toString().toFloatOrNull() ?: 90000f
                 settings.minLtp = minLtp.text.toString().toFloatOrNull() ?: 0f
+                settings.minAmountInr = minAmount.text.toString().toFloatOrNull() ?: 0f
                 settings.alertCooldownMin = cooldown.text.toString().toIntOrNull() ?: 10
                 settings.atmRangeStrikes = atm.text.toString().toIntOrNull() ?: 5
                 settings.enableTelegram = chkTelegram.isChecked
