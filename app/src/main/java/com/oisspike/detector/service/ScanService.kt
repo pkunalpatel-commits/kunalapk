@@ -243,11 +243,15 @@ class ScanService : Service() {
             else -> "  ATM${if (d > 0) "+" else ""}$d"
         }
         val spotLabel = a.spot?.let { "Spot: ${String.format(java.util.Locale.US, "%.2f", it)}\n" } ?: ""
+        val notional = a.oi * a.ltp
         return "$arrow OI SPIKE (${a.window}) — ${a.symbol} ${a.strike} ${a.type}$atmLabel\n" +
             "Expiry: ${a.expiry}\n" +
             spotLabel +
             "OI: ${a.oi.toLong()}  (+${a.oiChangePct}% in ${a.window})\n" +
-            "LTP: ${a.ltp}  (${if (a.priceChangePct >= 0) "+" else ""}${a.priceChangePct}%)"
+            "ΔOI: ${a.oiDelta.toLong()}\n" +
+            "LTP: ${a.ltp}  (${if (a.priceChangePct >= 0) "+" else ""}${a.priceChangePct}%)\n" +
+            "Amount ↑: ₹${formatInr(a.amountIncrease)}  (ΔOI×LTP)\n" +
+            "Notional: ₹${formatInr(notional)}  (OI×LTP)"
     }
 
     private fun stopScan() {
