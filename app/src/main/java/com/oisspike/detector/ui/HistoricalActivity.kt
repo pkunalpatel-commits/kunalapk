@@ -58,12 +58,12 @@ class HistoricalActivity : AppCompatActivity() {
     private fun toAlert(h: HistoricalSpike) = SpikeAlert(
         h.symbol, h.expiry, h.strike, h.type, h.window,
         h.oi, h.oiChangePct, h.ltp, h.priceChangePct, h.ts,
-        h.atmDistance, h.spot, h.oiDelta, h.amountIncrease,
+        h.atmDistance, h.spot, h.oiDelta, h.amountIncrease, h.kind,
     )
 
     private fun passesAmountFilter(h: HistoricalSpike): Boolean {
         val minA = settings.minAmountInr.toDouble()
-        return minA <= 0.0 || h.amountIncrease >= minA
+        return minA <= 0.0 || kotlin.math.abs(h.amountIncrease) >= minA
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -292,6 +292,9 @@ class HistoricalActivity : AppCompatActivity() {
                                     includeStandardWindows = settings.includeStandardWindows,
                                     cooldownMin = settings.alertCooldownMin,
                                     minLtp = settings.minLtp,
+                                    squeezeEnabled = settings.squeezeEnabled,
+                                    squeezeOiDropPct = settings.squeezeOiDropPct,
+                                    squeezePriceSurgePct = settings.squeezePriceSurgePct,
 )
                                 val filtered = found.filter { passesAmountFilter(it) }
                                 if (filtered.isNotEmpty()) {

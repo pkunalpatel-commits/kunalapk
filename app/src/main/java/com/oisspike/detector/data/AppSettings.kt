@@ -322,6 +322,19 @@ class AppSettings(context: Context) {
         get() = prefs.getFloat("min_amount_inr", 0f)
         set(v) = prefs.edit().putFloat("min_amount_inr", v).apply()
 
+    /** Extra: panic cover / squeeze (OI down + price up). Off by default. */
+    var squeezeEnabled: Boolean
+        get() = prefs.getBoolean("squeeze_enabled", false)
+        set(v) = prefs.edit().putBoolean("squeeze_enabled", v).apply()
+
+    var squeezeOiDropPct: Float
+        get() = prefs.getFloat("squeeze_oi_drop_pct", 20f)
+        set(v) = prefs.edit().putFloat("squeeze_oi_drop_pct", v).apply()
+
+    var squeezePriceSurgePct: Float
+        get() = prefs.getFloat("squeeze_price_surge_pct", 5f)
+        set(v) = prefs.edit().putFloat("squeeze_price_surge_pct", v).apply()
+
     fun isColVisible(key: String): Boolean = prefs.getBoolean("col_vis_$key", true)
     fun setColVisible(key: String, visible: Boolean) =
         prefs.edit().putBoolean("col_vis_$key", visible).apply()

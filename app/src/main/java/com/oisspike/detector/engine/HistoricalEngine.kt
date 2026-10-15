@@ -25,6 +25,7 @@ data class HistoricalSpike(
     val spot: Double? = null,
     val oiDelta: Double = 0.0,
     val amountIncrease: Double = 0.0,
+    val kind: String = "SPIKE",
 )
 
 /**
@@ -62,6 +63,9 @@ object HistoricalEngine {
         includeStandardWindows: Boolean = true,
         cooldownMin: Int = 10,
         minLtp: Float = 0f,
+        squeezeEnabled: Boolean = false,
+        squeezeOiDropPct: Float = 20f,
+        squeezePriceSurgePct: Float = 5f,
     ): List<HistoricalSpike> {
         val tsArr = candles.optJSONArray("timestamp") ?: return emptyList()
         val closeArr = candles.optJSONArray("close") ?: return emptyList()
@@ -128,8 +132,40 @@ object HistoricalEngine {
                         spot = spot,
                         oiDelta = oi - pastOi,
                         amountIncrease = (oi - pastOi) * ltp,
+                        kind = "SPIKE",
                     )
                 )
+                // Additional SQUEEZE (does not change SPIKE rules above)
+                if (squeezeEnabled &&
+                    oiChange <= -squeezeOiDropPct &&
+                    priceChange >= squeezePriceSurgePct
+                ) {
+                    val sqKey = "SQ:${w.label}"
+                    val lastSq = lastAlertBar[sqKey] ?: -1_000_000
+                    if (i - lastSq >= cooldownBars) {
+                        lastAlertBar[sqKey] = i
+                        alerts.add(
+                            HistoricalSpike(
+                                symbol = symbol,
+                                expiry = expiry,
+                                strike = strike,
+                                type = optType,
+                                window = w.label,
+                                oi = oi,
+                                oiChangePct = Math.round(oiChange * 100.0) / 100.0,
+                                ltp = ltp,
+                                priceChangePct = Math.round(priceChange * 100.0) / 100.0,
+                                ts = tsSec,
+                                datetime = fmt.format(Date(tsSec * 1000)),
+                                atmDistance = atmDistance,
+                                spot = spot,
+                                oiDelta = oi - pastOi,
+                                amountIncrease = (oi - pastOi) * ltp,
+                                kind = "SQUEEZE",
+                            )
+                        )
+                    }
+                }
             }
         }
         return alerts

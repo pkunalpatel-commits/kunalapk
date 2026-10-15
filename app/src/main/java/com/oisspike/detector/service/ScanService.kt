@@ -102,6 +102,9 @@ class ScanService : Service() {
                 settings.priceChangePct.toDouble(),
                 settings.minOi.toDouble(),
                 settings.alertCooldownMin * 60L,
+                settings.squeezeEnabled,
+                settings.squeezeOiDropPct.toDouble(),
+                settings.squeezePriceSurgePct.toDouble(),
             )
             val pollSec = suggestedPollSec(settings.liveCandleIntervalMin, settings.pollIntervalSec)
             appendLog(
@@ -110,6 +113,11 @@ class ScanService : Service() {
                     "  price≥${settings.priceChangePct}%  minOI=${settings.minOi.toLong()}"
             )
             appendLog("Warm-up: need ~1 full candle interval of samples before 1m alerts (same as historical bars).")
+            if (settings.squeezeEnabled) {
+                appendLog(
+                    "Squeeze ON: OI≤-${settings.squeezeOiDropPct}% AND price≥+${settings.squeezePriceSurgePct}% (extra; SPIKE rules unchanged)"
+                )
+            }
             appendLog("Scanner started. Windows: ${windows.joinToString { it.label }}")
 
             while (isActive && isRunning) {
@@ -127,6 +135,9 @@ class ScanService : Service() {
                         settings.priceChangePct.toDouble(),
                         settings.minOi.toDouble(),
                         settings.alertCooldownMin * 60L,
+                        settings.squeezeEnabled,
+                        settings.squeezeOiDropPct.toDouble(),
+                        settings.squeezePriceSurgePct.toDouble(),
                     )
 
                     if (client.clientId.isBlank() || client.accessToken.isBlank()) {
@@ -221,11 +232,15 @@ class ScanService : Service() {
 
     private fun onSpike(a: SpikeAlert) {
         val minA = settings.minAmountInr.toDouble()
-        if (minA > 0 && a.amountIncrease < minA) return
+        if (minA > 0) {
+            val amt = kotlin.math.abs(a.amountIncrease)
+            if (amt < minA) return
+        }
         recentSpikes.add(0, a)
         while (recentSpikes.size > 200) recentSpikes.removeAt(recentSpikes.size - 1)
         val msg = formatAlert(a)
-        appendLog("SPIKE ${a.window} ${a.symbol} ${a.strike} ${a.type} OI +${a.oiChangePct}% Amt↑ ${formatInr(a.amountIncrease)}")
+        val tag = if (a.kind == "SQUEEZE") "SQUEEZE" else "SPIKE"
+        appendLog("$tag ${a.window} ${a.symbol} ${a.strike} ${a.type} OI ${a.oiChangePct}% Amt ${formatInr(a.amountIncrease)}")
         notifyState()
         showSpikeNotification(a)
         if (settings.enableTelegram) {
@@ -244,14 +259,22 @@ class ScanService : Service() {
         }
         val spotLabel = a.spot?.let { "Spot: ${String.format(java.util.Locale.US, "%.2f", it)}\n" } ?: ""
         val notional = a.oi * a.ltp
-        return "$arrow OI SPIKE (${a.window}) — ${a.symbol} ${a.strike} ${a.type}$atmLabel\n" +
+        val title = if (a.kind == "SQUEEZE") {
+            "🔥 SQUEEZE / COVER (${a.window}) — ${a.symbol} ${a.strike} ${a.type}$atmLabel"
+        } else {
+            "$arrow OI SPIKE (${a.window}) — ${a.symbol} ${a.strike} ${a.type}$atmLabel"
+        }
+        val amtLabel = if (a.kind == "SQUEEZE") "Amount closed" else "Amount ↑"
+        val bias = if (a.kind == "SQUEEZE") "\nBias: panic covering / short squeeze" else ""
+        return "$title\n" +
             "Expiry: ${a.expiry}\n" +
             spotLabel +
-            "OI: ${a.oi.toLong()}  (+${a.oiChangePct}% in ${a.window})\n" +
+            "OI: ${a.oi.toLong()}  (${if (a.oiChangePct >= 0) "+" else ""}${a.oiChangePct}% in ${a.window})\n" +
             "ΔOI: ${a.oiDelta.toLong()}\n" +
             "LTP: ${a.ltp}  (${if (a.priceChangePct >= 0) "+" else ""}${a.priceChangePct}%)\n" +
-            "Amount ↑: ₹${formatInr(a.amountIncrease)}  (ΔOI×LTP)\n" +
-            "Notional: ₹${formatInr(notional)}  (OI×LTP)"
+            "$amtLabel: ₹${formatInr(kotlin.math.abs(a.amountIncrease))}  (|ΔOI|×LTP)\n" +
+            "Notional: ₹${formatInr(notional)}  (OI×LTP)" +
+            bias
     }
 
     private fun stopScan() {
@@ -306,7 +329,10 @@ class ScanService : Service() {
         val nm = getSystemService(NotificationManager::class.java)
         val n = NotificationCompat.Builder(this, SPIKE_CHANNEL)
             .setContentTitle("OI Spike ${a.window}: ${a.symbol} ${a.strike} ${a.type}")
-            .setContentText("OI +${a.oiChangePct}%  LTP ${a.priceChangePct}%")
+            .setContentText(
+                if (a.kind == "SQUEEZE") "SQUEEZE OI ${a.oiChangePct}% LTP +${a.priceChangePct}%"
+                else "OI +${a.oiChangePct}%  LTP ${a.priceChangePct}%"
+            )
             .setSmallIcon(R.drawable.ic_launcher)
             .setAutoCancel(true)
             .build()

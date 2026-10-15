@@ -112,15 +112,20 @@ class SpikeAdapter : RecyclerView.Adapter<SpikeAdapter.VH>() {
         setCol(holder.colTime, visTime, if (showDate) fmtDate.format(Date(a.ts * 1000)) else fmtTime.format(Date(a.ts * 1000)))
         setCol(holder.colExpiry, visExpiry, fullExpiry(a.expiry))
         holder.colStrike.text = a.strike.toInt().toString()
-        holder.colType.text = a.type
+        holder.colType.text = if (a.kind == "SQUEEZE") "SQ" else a.type
         setCol(holder.colWin, visWin, a.window)
         setCol(holder.colOi, visOi, fullOi(a.oi))
         holder.colOiPct.text = String.format(Locale.US, "%+.0f%%", a.oiChangePct)
         setCol(holder.colAmt, visAmt, formatInr(a.amountIncrease))
         setCol(holder.colLtp, visLtp, String.format(Locale.US, "%.0f", a.ltp))
-        val c = if (a.oiChangePct >= 0) Color.parseColor("#86EFAC") else Color.parseColor("#FCA5A5")
+        val c = when {
+            a.kind == "SQUEEZE" -> Color.parseColor("#FBBF24")
+            a.oiChangePct >= 0 -> Color.parseColor("#86EFAC")
+            else -> Color.parseColor("#FCA5A5")
+        }
         holder.colOiPct.setTextColor(c)
         holder.colTime.setTextColor(c)
+        holder.colType.setTextColor(c)
         holder.itemView.setBackgroundColor(
             if (position % 2 == 0) Color.parseColor("#1A2332") else Color.parseColor("#141C28")
         )

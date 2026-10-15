@@ -41,6 +41,9 @@ class SettingsActivity : AppCompatActivity() {
             val minOi = findViewById<EditText>(R.id.inputMinOi)
             val minLtp = findViewById<EditText>(R.id.inputMinLtp)
             val minAmount = findViewById<EditText>(R.id.inputMinAmount)
+            val chkSqueeze = findViewById<CheckBox>(R.id.chkSqueeze)
+            val squeezeOi = findViewById<EditText>(R.id.inputSqueezeOiDrop)
+            val squeezePx = findViewById<EditText>(R.id.inputSqueezePrice)
             val cooldown = findViewById<EditText>(R.id.inputCooldown)
             val atm = findViewById<EditText>(R.id.inputAtm)
             val chkTelegram = findViewById<CheckBox>(R.id.chkTelegram)
@@ -68,6 +71,9 @@ class SettingsActivity : AppCompatActivity() {
             minOi.setText(settings.minOi.toLong().toString())
             minLtp.setText(settings.minLtp.toString())
             minAmount.setText(if (settings.minAmountInr > 0f) settings.minAmountInr.toLong().toString() else "0")
+            chkSqueeze.isChecked = settings.squeezeEnabled
+            squeezeOi.setText(settings.squeezeOiDropPct.toString())
+            squeezePx.setText(settings.squeezePriceSurgePct.toString())
             cooldown.setText(settings.alertCooldownMin.toString())
             atm.setText(settings.atmRangeStrikes.toString())
             chkTelegram.isChecked = settings.enableTelegram
@@ -151,6 +157,9 @@ class SettingsActivity : AppCompatActivity() {
                 settings.minOi = minOi.text.toString().toFloatOrNull() ?: 90000f
                 settings.minLtp = minLtp.text.toString().toFloatOrNull() ?: 0f
                 settings.minAmountInr = minAmount.text.toString().toFloatOrNull() ?: 0f
+                settings.squeezeEnabled = chkSqueeze.isChecked
+                settings.squeezeOiDropPct = squeezeOi.text.toString().toFloatOrNull() ?: 20f
+                settings.squeezePriceSurgePct = squeezePx.text.toString().toFloatOrNull() ?: 5f
                 settings.alertCooldownMin = cooldown.text.toString().toIntOrNull() ?: 10
                 settings.atmRangeStrikes = atm.text.toString().toIntOrNull() ?: 5
                 settings.enableTelegram = chkTelegram.isChecked

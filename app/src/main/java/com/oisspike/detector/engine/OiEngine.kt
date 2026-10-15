@@ -20,6 +20,8 @@ data class SpikeAlert(
     val spot: Double? = null,
     val oiDelta: Double = 0.0,
     val amountIncrease: Double = 0.0,
+    /** "SPIKE" = OI up (existing). "SQUEEZE" = OI down + price up (extra). */
+    val kind: String = "SPIKE",
 )
 
 fun formatInr(amount: Double): String {
@@ -98,6 +100,10 @@ class OiEngine(
     private var pricePct: Double,
     private var minOi: Double,
     private var cooldownSec: Long,
+    /** Extra feature only — does not change SPIKE rules. */
+    private var squeezeEnabled: Boolean = false,
+    private var squeezeOiDropPct: Double = 20.0,
+    private var squeezePriceSurgePct: Double = 5.0,
 ) {
     private val history = ConcurrentHashMap<String, MutableList<Snapshot>>()
     private val lastAlert = ConcurrentHashMap<String, MutableMap<String, Long>>()
@@ -112,11 +118,17 @@ class OiEngine(
         pricePct: Double,
         minOi: Double,
         cooldownSec: Long,
+        squeezeEnabled: Boolean = this.squeezeEnabled,
+        squeezeOiDropPct: Double = this.squeezeOiDropPct,
+        squeezePriceSurgePct: Double = this.squeezePriceSurgePct,
     ) {
         this.windows = windows
         this.pricePct = pricePct
         this.minOi = minOi
         this.cooldownSec = cooldownSec
+        this.squeezeEnabled = squeezeEnabled
+        this.squeezeOiDropPct = squeezeOiDropPct
+        this.squeezePriceSurgePct = squeezePriceSurgePct
     }
 
     private fun key(symbol: String, expiry: String, strike: Double, type: String) =
@@ -159,6 +171,7 @@ class OiEngine(
 
             val oiChange = (oi - past.oi) / past.oi * 100.0
             val priceChange = if (past.ltp != 0.0) (ltp - past.ltp) / past.ltp * 100.0 else 0.0
+            // --- existing SPIKE path (unchanged rules) ---
             if (oiChange >= w.oiThreshold && abs(priceChange) >= pricePct) {
                 val map = lastAlert.getOrPut(k) { mutableMapOf() }
                 val last = map[w.label] ?: 0L
@@ -175,6 +188,33 @@ class OiEngine(
                             spot,
                             oiDelta = delta,
                             amountIncrease = delta * ltp,
+                            kind = "SPIKE",
+                        )
+                    )
+                }
+            }
+            // --- additional SQUEEZE path (OI down + price up); does not alter SPIKE ---
+            if (squeezeEnabled &&
+                oiChange <= -squeezeOiDropPct &&
+                priceChange >= squeezePriceSurgePct
+            ) {
+                val map = lastAlert.getOrPut(k) { mutableMapOf() }
+                val sqKey = "SQ:${w.label}"
+                val last = map[sqKey] ?: 0L
+                if (ts - last >= cooldownSec) {
+                    map[sqKey] = ts
+                    val delta = oi - past.oi
+                    alerts.add(
+                        SpikeAlert(
+                            symbol, expiry, strike, type, w.label,
+                            oi, Math.round(oiChange * 100.0) / 100.0,
+                            ltp, Math.round(priceChange * 100.0) / 100.0,
+                            ts,
+                            atmDistance,
+                            spot,
+                            oiDelta = delta,
+                            amountIncrease = delta * ltp,
+                            kind = "SQUEEZE",
                         )
                     )
                 }
