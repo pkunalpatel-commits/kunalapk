@@ -260,7 +260,7 @@ class ScanService : Service() {
         val spotLabel = a.spot?.let { "Spot: ${String.format(java.util.Locale.US, "%.2f", it)}\n" } ?: ""
         val notional = a.oi * a.ltp
         val title = if (a.kind == "SQUEEZE") {
-            "🔥 SQUEEZE / COVER (${a.window}) — ${a.symbol} ${a.strike} ${a.type}$atmLabel"
+            "🔥 SQUEEZE / COVER (${a.window}) — ${a.symbol} ${a.strike} ${a.type}$atmLabel | Exp ${a.expiry}"
         } else {
             "$arrow OI SPIKE (${a.window}) — ${a.symbol} ${a.strike} ${a.type}$atmLabel"
         }
